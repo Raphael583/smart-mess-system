@@ -16,5 +16,6 @@ import { WeeklyMenuSchema } from '../weekly-menu/schemas/weekly-menu.schema';
   ],
   controllers: [MealLogController],
   providers: [MealLogService],
+  exports: [MongooseModule],
 })
 export class MealLogModule {}
