@@ -1,13 +1,16 @@
-
 import { Schema } from 'mongoose';
 
-export const StudentSchema = new Schema({
-  name: { type: String, required: true, trim: true },
-  deptNo: { type: String, required: true, unique: true }, // instead of rollNumber
-  uid: { type: String, required: true, unique: true }, // RFID tag UID
-  email: { type: String, required: true, unique: true, lowercase: true },
-  phone: { type: String, required: true, match: /^[6-9]\d{9}$/ },
-  isBlocked: { type: Boolean, default: false },
-}, {
-  timestamps: true
-});
+export const StudentSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    deptNo: { type: String, required: true, unique: true },
+    rfidUID: { type: String, required: true, unique: true },
+    
+    phoneNumber: { type: String, required: true },
+    email: { type: String },
+    messType: { type: String, enum: ['Veg', 'Non-Veg'], required: true },
+    roomNumber: { type: String, required: true },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);

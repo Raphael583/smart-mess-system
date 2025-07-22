@@ -1,13 +1,15 @@
-
 import { Document } from 'mongoose';
 
 export interface Student extends Document {
   name: string;
   deptNo: string;
-  uid: string;
-  email: string;
-  phone: string;
-  isBlocked: boolean;
+  rfidUID: string;
+  year: number;
+  phoneNumber: string;
+  email?: string;
+  messType: 'Veg' | 'Non-Veg';
+  roomNumber: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

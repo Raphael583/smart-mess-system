@@ -1,24 +1,46 @@
-// src/student/dto/create-student.dto.ts
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsEmail,
+  IsEnum,
+  Length,
+  Matches,
+} from 'class-validator';
 
 export class CreateStudentDto {
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty({ message: 'Department number is required' })
   deptNo: string;
 
-  @IsNotEmpty()
   @IsString()
-  uid: string;
+  @IsNotEmpty({ message: 'RFID UID is required' })
+  @Matches(/^[A-Za-z0-9]{6,20}$/, {
+    message: 'RFID UID must be alphanumeric and 6-20 characters long',
+  })
+  rfidUID: string;
 
-  @IsEmail()
+  @IsNumber({}, { message: 'Year must be a number' })
+  year: number;
+
+  @IsString()
+  @Length(10, 10, { message: 'Phone number must be 10 digits' })
+  phoneNumber: string;
+
+  @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 
-  @Matches(/^[6-9]\d{9}$/, {
-    message: 'Phone number must be valid Indian mobile number',
+  @IsEnum(['Veg', 'Non-Veg'], {
+    message: 'Mess type must be either "Veg" or "Non-Veg"',
   })
-  phone: string;
+  messType: 'Veg' | 'Non-Veg';
+
+  @IsString()
+  @IsNotEmpty({ message: 'Room number is required' })
+  roomNumber: string;
 }
