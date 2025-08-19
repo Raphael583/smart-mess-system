@@ -6,16 +6,19 @@ import { CreateMealLogDto } from './dto/create-meal-log.dto';
 export class MealLogController {
   constructor(private readonly mealLogService: MealLogService) {}
 
+  // ✅ for frontend to create entry
   @Post()
   create(@Body() dto: CreateMealLogDto) {
     return this.mealLogService.create(dto);
   }
 
+  // ✅ to view all entries
   @Get()
   findAll() {
     return this.mealLogService.findAll();
   }
 
+  // ✅ RFID preview
   @Post('preview')
   preview(@Body('rfidUID') rfidUID: string) {
     return this.mealLogService.getPreviewByRFID(rfidUID);

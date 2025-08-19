@@ -6,7 +6,6 @@ import {
   IsEmail,
   IsEnum,
   Length,
-  Matches,
 } from 'class-validator';
 
 export class CreateStudentDto {
@@ -17,13 +16,6 @@ export class CreateStudentDto {
   @IsString()
   @IsNotEmpty({ message: 'Department number is required' })
   deptNo: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'RFID UID is required' })
-  @Matches(/^[A-Za-z0-9]{6,20}$/, {
-    message: 'RFID UID must be alphanumeric and 6-20 characters long',
-  })
-  rfidUID: string;
 
   @IsNumber({}, { message: 'Year must be a number' })
   year: number;

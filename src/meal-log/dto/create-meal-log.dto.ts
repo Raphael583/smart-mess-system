@@ -4,11 +4,14 @@ export class CreateMealLogDto {
   @IsMongoId()
   studentId: string;
 
+  @IsString()
+  rfidUID: string;   // ✅ now also required from frontend/backend
+
   @IsDateString()
-  date: string;
+  date: string;      // ✅ frontend calendar
 
   @IsEnum(['Breakfast', 'Lunch', 'Dinner'])
-  mealType: 'Breakfast' | 'Lunch' | 'Dinner';
+  mealType: 'Breakfast' | 'Lunch' | 'Dinner';  // ✅ frontend dropdown
 
   @IsMongoId()
   dishId: string;

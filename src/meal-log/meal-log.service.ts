@@ -5,7 +5,7 @@ import { MealLog } from './interfaces/meal-log.interface';
 import { CreateMealLogDto } from './dto/create-meal-log.dto';
 import { Student } from '../student/student.interface';
 import { WeeklyMenu } from '../weekly-menu/interfaces/weekly-menu.interface';
-import { getCurrentMealType } from '../meal-log/utils/time.utils';
+import { getCurrentMealType } from './utils/time.utils';
 
 @Injectable()
 export class MealLogService {
@@ -15,15 +15,28 @@ export class MealLogService {
     @InjectModel('WeeklyMenu') private menuModel: Model<WeeklyMenu>,
   ) {}
 
+  // ✅ create entry (from frontend or backend RFID flow)
   async create(dto: CreateMealLogDto): Promise<MealLog> {
-    const log = new this.mealLogModel(dto);
+    const student = await this.studentModel.findById(dto.studentId);
+    if (!student) throw new NotFoundException('Student not found');
+
+    const log = new this.mealLogModel({
+      ...dto,
+      rfidUID: dto.rfidUID,  // ✅ now must be explicitly set
+      messType: student.messType, // ensure consistency with student’s messType
+    });
+
     return log.save();
   }
 
   async findAll(): Promise<MealLog[]> {
-    return this.mealLogModel.find().populate('studentId').populate('dishId').exec();
+    return this.mealLogModel.find()
+      .populate('studentId')
+      .populate('dishId')
+      .exec();
   }
 
+  // ✅ preview meal before logging
   async getPreviewByRFID(rfidUID: string) {
     const student = await this.studentModel.findOne({ rfidUID });
     if (!student) throw new NotFoundException('Student not found');
@@ -40,11 +53,14 @@ export class MealLogService {
     if (!menu) throw new NotFoundException('No menu available');
 
     return {
+      studentId: student._id,
       studentName: student.name,
       deptNo: student.deptNo,
       messType: student.messType,
+      rfidUID,
       mealType,
       day: today,
+      dishId: menu._id,
       dishName: menu.dishName,
       price: menu.price,
     };
