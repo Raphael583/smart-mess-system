@@ -1,26 +1,25 @@
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { MealLogService } from './meal-log.service';
-import { CreateMealLogDto } from './dto/create-meal-log.dto';
 
 @Controller('meallog')
 export class MealLogController {
   constructor(private readonly mealLogService: MealLogService) {}
 
-  // ✅ for frontend to create entry
+  // ✅ Create meal log (only mealType is required)
   @Post()
-  create(@Body() dto: CreateMealLogDto) {
-    return this.mealLogService.create(dto);
+  async create(@Body('mealType') mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+    return this.mealLogService.create(mealType);
   }
 
-  // ✅ to view all entries
+  // ✅ Get all logs
   @Get()
-  findAll() {
+  async findAll() {
     return this.mealLogService.findAll();
   }
 
-  // ✅ RFID preview
+  // ✅ Preview before saving
   @Post('preview')
-  preview(@Body('rfidUID') rfidUID: string) {
-    return this.mealLogService.getPreviewByRFID(rfidUID);
+  async preview(@Body('mealType') mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+    return this.mealLogService.getPreviewByRFID(mealType);
   }
 }

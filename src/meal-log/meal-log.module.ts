@@ -5,6 +5,7 @@ import { MealLogService } from './meal-log.service';
 import { MealLogSchema } from './schemas/meal-log.schema';
 import { StudentSchema } from '../student/student.schema';
 import { WeeklyMenuSchema } from '../weekly-menu/schemas/weekly-menu.schema';
+import { RfidModule } from '../rfid/rfid.module'; 
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { WeeklyMenuSchema } from '../weekly-menu/schemas/weekly-menu.schema';
       { name: 'Student', schema: StudentSchema },
       { name: 'WeeklyMenu', schema: WeeklyMenuSchema },
     ]),
+    RfidModule,
   ],
   controllers: [MealLogController],
   providers: [MealLogService],
