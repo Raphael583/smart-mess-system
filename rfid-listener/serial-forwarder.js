@@ -1,25 +1,23 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 const axios = require('axios');
+const express = require('express'); // 👈 To accept stop/start commands
+const app = express();
+
+app.use(express.json());
 
 // ✅ Set the correct COM port and baud rate
 const port = new SerialPort({
-  path: 'COM4',       // 👈 CONFIRMED working port
-  baudRate: 115200,   // 👈 Baud rate
-  autoOpen: false     // Let’s open it manually with error handling
+  path: 'COM4',       // 👈 Your working port
+  baudRate: 115200,
+  autoOpen: false
 });
 
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-// ⏱ Timeout to expire UID after 2 minutes
 let lastUID = null;
 let timeout = null;
-
-function expireUID() {
-  console.log('⌛ UID expired.');
-  lastUID = null;
-  timeout = null;
-}
+let isListening = true; // 👈 frontend can toggle this
 
 // Open the port
 port.open((err) => {
@@ -31,14 +29,20 @@ port.open((err) => {
 
 // Handle incoming UID
 parser.on('data', async (data) => {
- const uid = data.replace(/^UID:\s*/i, '').trim();
+  if (!isListening) return; // 👈 skip if frontend stopped listening
 
-  // Ignore if same UID is scanned repeatedly
+  const uid = data.replace(/^UID:\s*/i, '').trim();
   if (!uid || uid === lastUID) return;
 
   lastUID = uid;
+
+  // reset 2-minute timer
   if (timeout) clearTimeout(timeout);
-  timeout = setTimeout(expireUID, 2 * 60 * 1000); // 2 minutes
+  timeout = setTimeout(() => {
+    console.log('⌛ UID expired.');
+    lastUID = null;
+    timeout = null;
+  }, 2 * 60 * 1000);
 
   console.log(`📥 UID received: ${uid}`);
 
@@ -48,4 +52,24 @@ parser.on('data', async (data) => {
   } catch (err) {
     console.error('❌ Error sending to backend:', err.message);
   }
+});
+
+//
+// ✅ REST API to control listening from frontend
+//
+app.post('/rfid/start', (req, res) => {
+  isListening = true;
+  console.log('▶️ RFID listening ENABLED by frontend');
+  res.json({ message: 'RFID listening started' });
+});
+
+app.post('/rfid/stop', (req, res) => {
+  isListening = false;
+  console.log('⏹️ RFID listening DISABLED by frontend');
+  res.json({ message: 'RFID listening stopped' });
+});
+
+// Run control server on port 4000
+app.listen(4000, () => {
+  console.log('🌐 Control server running at http://localhost:4000');
 });

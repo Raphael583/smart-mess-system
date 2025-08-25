@@ -15,13 +15,12 @@ export class BillingService {
     @InjectModel('Student') private studentModel: Model<Student>,
   ) {}
 
-  async generateBillsForMonth(month: string): Promise<Billing[]> {
+  async generateBillsForMonth(month: string): Promise<any[]> {
     const start = new Date(`${month} 1`);
     const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
     const students = await this.studentModel.find();
-
-    const bills: Billing[] = [];
+    const bills: any[] = [];
 
     for (const student of students) {
       const logs = await this.mealLogModel
@@ -29,19 +28,23 @@ export class BillingService {
           studentId: student._id,
           date: { $gte: start, $lte: end },
         })
-        .populate('dishId');
+        .populate('dishId')
+        .exec();
 
       if (!logs.length) continue;
 
       const totalMeals = logs.length;
-      const totalAmount = logs.reduce((sum, log: any) => sum + (log.dishId?.price || 0), 0);
+      const totalAmount = logs.reduce(
+        (sum, log: any) => sum + (log.dishId?.price || 0),
+        0
+      );
 
+      // Skip duplicates
       const existingBill = await this.billingModel.findOne({
         studentId: student._id,
         month,
       });
-
-      if (existingBill) continue; // Skip duplicate bills
+      if (existingBill) continue;
 
       const bill = new this.billingModel({
         studentId: student._id,
@@ -54,11 +57,46 @@ export class BillingService {
       bills.push(bill);
     }
 
-    return bills;
+    // 👉 Ensure we populate before returning
+    const populatedBills = await this.billingModel
+      .find({ month })
+      .populate('studentId', 'name deptNo') // ✅ only get name & deptNo
+      .exec();
+
+    return populatedBills.map(bill => {
+      const student: any = bill.studentId;
+      return {
+        id: bill._id,
+        studentName: student?.name || 'Unknown',
+        deptNo: student?.deptNo || 'N/A',
+        month: bill.month,
+        totalMeals: bill.totalMeals,
+        totalAmount: bill.totalAmount,
+        isPaid: bill.isPaid,
+        generatedAt: bill.generatedAt,
+      };
+    });
   }
 
-  async getBills(): Promise<Billing[]> {
-    return this.billingModel.find().populate('studentId').exec();
+  async getBills(): Promise<any[]> {
+    const bills = await this.billingModel
+      .find()
+      .populate('studentId', 'name deptNo')
+      .exec();
+
+    return bills.map(bill => {
+      const student: any = bill.studentId;
+      return {
+        id: bill._id,
+        studentName: student?.name || 'Unknown',
+        deptNo: student?.deptNo || 'N/A',
+        month: bill.month,
+        totalMeals: bill.totalMeals,
+        totalAmount: bill.totalAmount,
+        isPaid: bill.isPaid,
+        generatedAt: bill.generatedAt,
+      };
+    });
   }
 
   async getBillByStudent(studentId: string): Promise<Billing[]> {
@@ -66,7 +104,11 @@ export class BillingService {
   }
 
   async markAsPaid(id: string): Promise<{ message: string }> {
-    const bill = await this.billingModel.findByIdAndUpdate(id, { isPaid: true }, { new: true });
+    const bill = await this.billingModel.findByIdAndUpdate(
+      id,
+      { isPaid: true },
+      { new: true },
+    );
     if (!bill) throw new NotFoundException('Bill not found');
     return { message: 'Marked as paid' };
   }

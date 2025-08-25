@@ -9,6 +9,7 @@ import { Student } from './student.interface';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { RfidService } from 'src/rfid/rfid.service';
+import { RfidListenerService } from 'src/rfid/rfid-listener.service';
 
 @Injectable()
 export class StudentService {

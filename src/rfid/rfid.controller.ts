@@ -1,6 +1,4 @@
-
-
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body } from '@nestjs/common';
 import { RfidService } from './rfid.service';
 
 @Controller('rfid')
@@ -13,8 +11,22 @@ export class RfidController {
     if (!rawUID) {
       return { message: 'UID is missing' };
     }
-
-    this.rfidService.setUID(rawUID); // sets and cleans it internally
+    this.rfidService.setUID(rawUID);
     return { message: 'RFID UID received and stored temporarily.' };
+  }
+
+  @Get('get')
+  getRFID() {
+    const uid = this.rfidService.getUID();
+    if (!uid) {
+      return { message: 'No active UID (expired or not scanned yet)' };
+    }
+    return { uid };
+  }
+
+  @Delete('clear')
+  clearRFID() {
+    this.rfidService.clearUID();
+    return { message: 'RFID UID cleared manually.' };
   }
 }

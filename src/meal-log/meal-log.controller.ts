@@ -5,10 +5,10 @@ import { MealLogService } from './meal-log.service';
 export class MealLogController {
   constructor(private readonly mealLogService: MealLogService) {}
 
-  // ✅ Create meal log (only mealType is required)
+  // ✅ Log a meal (only mealType is required)
   @Post()
-  async create(@Body('mealType') mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
-    return this.mealLogService.create(mealType);
+  async logMeal(@Body('mealType') mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+    return this.mealLogService.logMeal(mealType);
   }
 
   // ✅ Get all logs
