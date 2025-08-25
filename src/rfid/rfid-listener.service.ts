@@ -10,7 +10,7 @@ export class RfidListenerService implements OnModuleInit {
 
   async onModuleInit() {
     const port = new SerialPort({
-      path: 'COM4',       // 👈 Change if your ESP32 is on another COM port
+      path: 'COM4',       // Change if your ESP32 is on another COM port
       baudRate: 115200,
       autoOpen: false,
     });
@@ -19,7 +19,7 @@ export class RfidListenerService implements OnModuleInit {
 
     port.open((err) => {
       if (err) {
-        return console.error(`❌ Error opening port: ${err.message}`);
+        return console.error(` Error opening port: ${err.message}`);
       }
       console.log('📡 Serial connection opened. Listening for RFID scans...');
     });
@@ -32,19 +32,19 @@ export class RfidListenerService implements OnModuleInit {
 
       if (this.timeout) clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-        console.log('⌛ UID expired.');
+        console.log(' UID expired.');
         this.lastUID = null;
         this.timeout = null;
-      }, 30 * 1000); // 2 minutes
+      }, 30 * 1000); // 30 seconds
 
       console.log(`📥 UID received: ${uid}`);
 
       try {
         // Instead of axios, directly call your RfidService
         await axios.post('http://localhost:3000/rfid/scan', { uid });
-        console.log('✅ Sent to backend');
+        console.log(' Sent to backend');
       } catch (err) {
-        console.error('❌ Error sending to backend:', err.message);
+        console.error(' Error sending to backend:', err.message);
       }
     });
   }
