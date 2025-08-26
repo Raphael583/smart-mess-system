@@ -29,4 +29,13 @@ export class RfidController {
     this.rfidService.clearUID();
     return { message: 'RFID UID cleared manually.' };
   }
+    @Get('scan')
+  fetchScannedRFID() {
+    const uid = this.rfidService.getUID();
+    if (!uid) {
+      return { message: 'No active UID (expired or not scanned yet)' };
+    }
+    return { uid };
+  }
 }
+

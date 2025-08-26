@@ -21,7 +21,7 @@ export class RfidListenerService implements OnModuleInit {
       if (err) {
         return console.error(` Error opening port: ${err.message}`);
       }
-      console.log('📡 Serial connection opened. Listening for RFID scans...');
+      console.log('Serial connection opened. Listening for RFID scans...');
     });
 
     parser.on('data', async (data: string) => {
@@ -37,7 +37,7 @@ export class RfidListenerService implements OnModuleInit {
         this.timeout = null;
       }, 30 * 1000); // 30 seconds
 
-      console.log(`📥 UID received: ${uid}`);
+      console.log(` UID received: ${uid}`);
 
       try {
         // Instead of axios, directly call your RfidService

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Student</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #4CAF50, #2E8B57);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 12px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    input:focus, select:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #scanBtn {
+      background-color: #2E8B57;
+    }
+
+    #scanBtn:hover {
+      background-color: #246b44;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create Student</h2>
+    <div id="message"></div>
+    <form id="studentForm">
+      <label>Name:</label>
+      <input type="text" id="name" required>
+
+      <label>Department Number:</label>
+      <input type="text" id="deptNo" required>
+
+      <label>Year:</label>
+      <input type="number" id="year" required>
+
+      <label>Phone Number:</label>
+      <input type="text" id="phoneNumber" required>
+
+      <label>Email:</label>
+      <input type="email" id="email">
+
+      <label>Mess Type:</label>
+      <select id="messType">
+        <option value="Veg">Veg</option>
+        <option value="Non-Veg">Non-Veg</option>
+      </select>
+
+      <label>Room Number:</label>
+      <input type="text" id="roomNumber" required>
+
+      <label>RFID UID:</label>
+      <input type="text" id="rfidUID" placeholder="Click 'Scan RFID'..." readonly>
+      <button type="button" id="scanBtn" onclick="scanRFID()">Scan RFID</button>
+
+      <button type="submit">Create Student</button>
+    </form>
+  </div>
+
+  <script>
+    async function scanRFID() {
+      try {
+        const res = await fetch("http://localhost:3000/rfid/get");
+        const data = await res.json();
+
+        if (data.uid) {
+          document.getElementById("rfidUID").value = data.uid;
+          document.getElementById("message").textContent = "RFID scanned: " + data.uid;
+          document.getElementById("message").className = "success";
+        } else {
+          document.getElementById("message").textContent = data.message || "No RFID available!";
+          document.getElementById("message").className = "error";
+        }
+      } catch (err) {
+        document.getElementById("message").textContent = "Error fetching RFID!";
+        document.getElementById("message").className = "error";
+      }
+    }
+
+    document.getElementById("studentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!document.getElementById("rfidUID").value) {
+        document.getElementById("message").textContent = "Please scan RFID before creating student!";
+        document.getElementById("message").className = "error";
+        return;
+      }
+
+      const student = {
+        name: document.getElementById("name").value,
+        deptNo: document.getElementById("deptNo").value,
+        year: parseInt(document.getElementById("year").value),
+        phoneNumber: document.getElementById("phoneNumber").value,
+        email: document.getElementById("email").value,
+        messType: document.getElementById("messType").value,
+        roomNumber: document.getElementById("roomNumber").value,
+        rfidUID: document.getElementById("rfidUID").value,
+      };
+
+      try {
+        const res = await fetch("http://localhost:3000/students", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(student),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById("message").textContent = "✅ Student created successfully!";
+          document.getElementById("message").className = "success";
+          document.getElementById("studentForm").reset();
+        } else {
+          document.getElementById("message").textContent = "❌ " + (data.message || "Error creating student!");
+          document.getElementById("message").className = "error";
+        }
+      } catch (err) {
+        document.getElementById("message").textContent = "Server error while creating student!";
+        document.getElementById("message").className = "error";
+      }
+    });
+  </script>
+</body>
+</html>
