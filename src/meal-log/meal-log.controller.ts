@@ -16,6 +16,11 @@ export class MealLogController {
   async findAll() {
     return this.mealLogService.findAll();
   }
+   @Get('count')
+  async getMealLogCount() {
+    const count = await this.mealLogService.getMealLogCount();
+    return { totalMeals: count };
+  }
 
   // ✅ Preview before saving
   @Post('preview')

@@ -11,6 +11,11 @@ export class StudentController {
   create(@Body() dto: CreateStudentDto) {
     return this.studentService.create(dto);
   }
+ @Get('count')
+  async getTotalStudents() {
+    const count = await this.studentService.getTotalStudents();
+    return { totalStudents: count };
+  }
 
   @Get()
   findAll() {

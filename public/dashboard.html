@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hostel Admin Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    nav {
+      background-color: #2E8B57;
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav a {
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    nav a:hover { background-color: #3cb371; }
+
+    main {
+      margin-left: 200px;
+      padding: 30px;
+    }
+
+    h2 { color: #333; }
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>Hostel Admin Dashboard</header>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Students</a>
+    <a href="#">Meal Logs</a>
+    <a href="#">Billing</a>
+    <a href="#">Weekly Menu</a>
+    <a id="logoutBtn">Logout</a>
+  </nav>
+  <main>
+    <h2>Welcome, Admin!</h2>
+    <div class="card">
+      <h3>Total Students: <span id="totalStudents">Loading...</span></h3>
+    </div>
+   
+    <div class="card">
+      <h3>Total Meals: <span id="totalMeals">Loading...</span></h3>
+    </div>
+  </main>
+
+  <script>
+    // Fetch total students
+    async function fetchTotalStudents() {
+      try {
+        const res = await fetch("http://localhost:3000/students/count");
+        const data = await res.json();
+        document.getElementById("totalStudents").textContent = data.totalStudents;
+      } catch (error) {
+        document.getElementById("totalStudents").textContent = "Error";
+        console.error("Error fetching total students:", error);
+      }
+    }
+
+    // Fetch total meals
+    async function fetchTotalMeals() {
+      try {
+        const res = await fetch("http://localhost:3000/meallog/count");
+        const data = await res.json();
+        document.getElementById("totalMeals").textContent = data.totalMeals;
+      } catch (error) {
+        document.getElementById("totalMeals").textContent = "Error";
+        console.error("Error fetching total meals:", error);
+      }
+    }
+
+    // Logout function
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      // Clear session storage/local storage if using token
+      localStorage.removeItem("token"); 
+      sessionStorage.removeItem("token");
+
+      // Redirect to login page
+      window.location.href = "login.html";
+    });
+
+    // Initial load
+    fetchTotalStudents();
+    fetchTotalMeals();
+  </script>
+</body>
+</html>

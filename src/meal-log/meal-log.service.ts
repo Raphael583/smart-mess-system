@@ -127,4 +127,10 @@ export class MealLogService {
       price: menu.price,
     };
   }
+  async getTotalMeals(): Promise<number> {
+  return this.mealLogModel.countDocuments().exec();
+}
+async getMealLogCount(): Promise<number> {
+    return this.mealLogModel.countDocuments().exec();
+  }
 }

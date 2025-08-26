@@ -62,7 +62,9 @@ export class StudentService {
     }
     return student;
   }
-
+ async getTotalStudents(): Promise<number> {
+  return this.studentModel.countDocuments().exec();
+}
   async update(id: string, dto: UpdateStudentDto): Promise<Student> {
     const updatedStudent = await this.studentModel
       .findByIdAndUpdate(id, dto, { new: true })
