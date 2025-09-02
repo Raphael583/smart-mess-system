@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx",                // 👈 enables JSX
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "baseUrl": "./src",                // 👈 so "@/..." works
+    "paths": {
+      "@/*": ["*"]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules, ../src"]
+}
