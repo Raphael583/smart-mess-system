@@ -1,80 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hostel Admin Dashboard</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f2f5;
+      background-color: #f9fafb;
       margin: 0;
+      display: flex;
+      min-height: 100vh;
     }
 
-    header {
-      background-color: #4CAF50;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-    }
-
+    /* Sidebar */
     nav {
-      background-color: #2E8B57;
-      width: 200px;
+      background-color: #1e293b; /* dark slate */
+      width: 220px;
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      padding-top: 60px;
       display: flex;
       flex-direction: column;
+      padding-top: 20px;
+    }
+
+    nav h2 {
+      color: #fff;
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 20px;
     }
 
     nav a {
-      color: white;
-      padding: 15px 20px;
+      color: #e2e8f0;
+      padding: 12px 20px;
       text-decoration: none;
-      font-size: 18px;
+      font-size: 16px;
       transition: 0.3s;
-      cursor: pointer;
+      border-radius: 6px;
+      margin: 5px 10px;
     }
 
-    nav a:hover { background-color: #3cb371; }
+    nav a:hover {
+      background-color: #334155;
+      color: #fff;
+    }
 
+    /* Main content */
     main {
-      margin-left: 200px;
+      margin-left: 220px;
       padding: 30px;
+      flex: 1;
     }
 
-    h2 { color: #333; }
+    header {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
     .card {
       background: white;
       padding: 20px;
-      margin: 15px 0;
-      border-radius: 10px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
     }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #374151;
+    }
+
+    .card span {
+      display: block;
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #16a34a;
+    }
+
+   #logoutBtn {
+  color: #e2e8f0;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: 0.3s;
+  border-radius: 6px;
+  margin: 5px 10px;
+  cursor: pointer;
+}
+
+#logoutBtn:hover {
+  background-color: #334155;
+  color: #fff;
+}
   </style>
 </head>
 <body>
-  <header>Hostel Admin Dashboard</header>
+  <!-- Sidebar -->
   <nav>
-    <a href="#">Home</a>
-    <a href="create-student.html">Students</a>
-    <a href="#">Meal Logs</a>
+    <h2>🏠 Hostel Admin</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="meal-log.html">Meal Logs</a>
     <a href="#">Billing</a>
     <a href="#">Weekly Menu</a>
-    <a id="logoutBtn">Logout</a>
+    <div id="logoutBtn">Logout</div>
   </nav>
+
+  <!-- Main Content -->
   <main>
-    <h2>Welcome, Admin!</h2>
-    <div class="card">
-      <h3>Total Students: <span id="totalStudents">Loading...</span></h3>
-    </div>
-   
-    <div class="card">
-      <h3>Total Meals: <span id="totalMeals">Loading...</span></h3>
+    <header>
+      <h1>Dashboard Overview</h1>
+      <p>Welcome back! Here’s the latest update.</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Total Students</h3>
+        <span id="totalStudents">Loading...</span>
+      </div>
+
+      <div class="card">
+        <h3>Total Meals</h3>
+        <span id="totalMeals">Loading...</span>
+      </div>
     </div>
   </main>
 
@@ -103,13 +174,10 @@
       }
     }
 
-    // Logout function
+    // Logout
     document.getElementById("logoutBtn").addEventListener("click", () => {
-      // Clear session storage/local storage if using token
-      localStorage.removeItem("token"); 
+      localStorage.removeItem("token");
       sessionStorage.removeItem("token");
-
-      // Redirect to login page
       window.location.href = "login.html";
     });
 

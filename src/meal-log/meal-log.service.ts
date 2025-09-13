@@ -15,8 +15,48 @@ export class MealLogService {
     private readonly rfidService: RfidService,
   ) {}
 
+  // 🔹 New session state
+  private activeMeal: 'Breakfast' | 'Lunch' | 'Dinner' | null = null;
+
+  // ✅ Start meal logging session
+  startMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+    if (this.activeMeal) {
+      throw new BadRequestException(
+        `Meal logging already active for ${this.activeMeal}`,
+      );
+    }
+    this.activeMeal = mealType;
+    return { message: `${mealType} logging started` };
+  }
+
+  // ✅ Stop meal logging session
+  stopMeal() {
+    if (!this.activeMeal) {
+      throw new BadRequestException(`No active meal logging to stop`);
+    }
+    const stopped = this.activeMeal;
+    this.activeMeal = null;
+    return { message: `${stopped} logging stopped` };
+  }
+
+  // ✅ Check active meal
+  getActiveMeal() {
+    return this.activeMeal;
+  }
+
   // ✅ Log a meal for a student using RFID
   async logMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+    // 🔹 Ensure session is active
+    if (!this.activeMeal) {
+      throw new BadRequestException("Mess time is over, can't log meal");
+    }
+
+    if (this.activeMeal !== mealType) {
+      throw new BadRequestException(
+        `Currently logging ${this.activeMeal}, not ${mealType}`,
+      );
+    }
+
     const rfidUID = this.rfidService.getUID();
     if (!rfidUID) {
       throw new BadRequestException('No RFID UID found. Please scan the card.');
@@ -31,11 +71,13 @@ export class MealLogService {
     // 2. Find today's menu (by weekday + student’s messType)
     const today = new Date().toLocaleString('en-US', { weekday: 'long' });
 
-    const menu = await this.weeklyMenuModel.findOne({
-      mealType,
-      messType: student.messType,
-      day: today,
-    }).exec();
+    const menu = await this.weeklyMenuModel
+      .findOne({
+        mealType,
+        messType: student.messType,
+        day: today,
+      })
+      .exec();
 
     if (!menu) {
       throw new BadRequestException(
@@ -49,11 +91,13 @@ export class MealLogService {
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    const existingLog = await this.mealLogModel.findOne({
-      studentId: student._id,
-      mealType,
-      date: { $gte: startOfDay, $lte: endOfDay },
-    }).exec();
+    const existingLog = await this.mealLogModel
+      .findOne({
+        studentId: student._id,
+        mealType,
+        date: { $gte: startOfDay, $lte: endOfDay },
+      })
+      .exec();
 
     if (existingLog) {
       throw new BadRequestException(`Meal already logged for ${mealType} today.`);
@@ -106,11 +150,13 @@ export class MealLogService {
     // Match by weekday
     const today = new Date().toLocaleString('en-US', { weekday: 'long' });
 
-    const menu = await this.weeklyMenuModel.findOne({
-      mealType,
-      messType: student.messType,
-      day: today,
-    }).exec();
+    const menu = await this.weeklyMenuModel
+      .findOne({
+        mealType,
+        messType: student.messType,
+        day: today,
+      })
+      .exec();
 
     if (!menu) {
       throw new BadRequestException(
@@ -127,10 +173,12 @@ export class MealLogService {
       price: menu.price,
     };
   }
+
   async getTotalMeals(): Promise<number> {
-  return this.mealLogModel.countDocuments().exec();
-}
-async getMealLogCount(): Promise<number> {
+    return this.mealLogModel.countDocuments().exec();
+  }
+
+  async getMealLogCount(): Promise<number> {
     return this.mealLogModel.countDocuments().exec();
   }
 }

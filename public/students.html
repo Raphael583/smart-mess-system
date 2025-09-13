@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students - Hostel Admin</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    nav {
+      background-color: #1e293b;
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    nav h2 {
+      color: #fff;
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    nav a {
+      color: #e2e8f0;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: 0.3s;
+      border-radius: 6px;
+      margin: 5px 10px;
+    }
+
+    nav a:hover {
+      background-color: #334155;
+      color: #fff;
+    }
+
+    /* Main content */
+    main {
+      margin-left: 220px;
+      padding: 30px;
+      flex: 1;
+    }
+
+    header {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #374151;
+    }
+
+    .card span {
+      display: block;
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #3b82f6;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f3f4f6;
+      color: #374151;
+    }
+
+    /* Glass Create Student Button */
+    .glass-btn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #111827;
+      transition: 0.3s;
+      display: inline-block;
+    }
+
+    .glass-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      color: #1d4ed8;
+    }
+
+    /* Back button */
+    #backBtn {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #backBtn:hover {
+      background: #2563eb;
+    }
+    #logoutBtn {
+  color: #e2e8f0;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: 0.3s;
+  border-radius: 6px;
+  margin: 5px 10px;
+  cursor: pointer;
+}
+
+#logoutBtn:hover {
+  background-color: #334155;
+  color: #fff;
+}
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav>
+    <h2>🏠 Hostel Admin</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="meal-log.html">Meal Logs</a>
+    <a href="#">Billing</a>
+    <a href="#">Weekly Menu</a>
+    <div id="logoutBtn">Logout</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <header>
+      <h1>Students</h1>
+      <p>Manage all registered students here.</p>
+    </header>
+
+    <!-- Card view (default) -->
+    <div id="studentCardView">
+      <div class="card" id="studentCountCard">
+        <h3>Total Students</h3>
+        <span id="totalStudents">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Table view (hidden initially) -->
+    <div id="studentsTableContainer" style="display:none;">
+      <h2>All Students</h2>
+      <button id="backBtn">⬅ Back</button>
+      <table id="studentsTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Dept No</th>
+            <th>Year</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Mess Type</th>
+            <th>Room</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Create Student Button -->
+    <button class="glass-btn" id="createStudentBtn">+ Create Student</button>
+  </main>
+
+  <script>
+    // Fetch total students
+    async function fetchTotalStudents() {
+      try {
+        const res = await fetch("http://localhost:3000/students/count");
+        const data = await res.json();
+        document.getElementById("totalStudents").textContent = data.totalStudents;
+      } catch (error) {
+        document.getElementById("totalStudents").textContent = "Error";
+        console.error("Error fetching total students:", error);
+      }
+    }
+
+    // Fetch all student details
+    async function fetchStudents() {
+      try {
+        const res = await fetch("http://localhost:3000/students");
+        const students = await res.json();
+
+        const tbody = document.querySelector("#studentsTable tbody");
+        tbody.innerHTML = "";
+
+        students.forEach(student => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${student.name}</td>
+            <td>${student.deptNo}</td>
+            <td>${student.year}</td>
+            <td>${student.email}</td>
+            <td>${student.phoneNumber}</td>
+            <td>${student.messType}</td>
+            <td>${student.roomNumber}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        // Switch to table view
+        document.getElementById("studentCardView").style.display = "none";
+        document.getElementById("studentsTableContainer").style.display = "block";
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    }
+
+    // Show student details on card click
+    document.getElementById("studentCountCard").addEventListener("click", fetchStudents);
+
+    // Back button → Go back to card view
+    document.getElementById("backBtn").addEventListener("click", () => {
+      document.getElementById("studentsTableContainer").style.display = "none";
+      document.getElementById("studentCardView").style.display = "block";
+      fetchTotalStudents(); // refresh count in case new students added
+    });
+
+    // Open Create Student page
+    document.getElementById("createStudentBtn").addEventListener("click", () => {
+      window.location.href = "create-student.html";
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+
+    // Initial load
+    fetchTotalStudents();
+  </script>
+</body>
+</html>

@@ -4,13 +4,14 @@ import { Input } from "./ui/input";
 import { Card } from "./ui/card";
 import { useToast } from "../hooks/use-toast";
 import cosmicBackground from "../assets/cosmic-background.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
+    const navigate=useNavigate();
   const handleLogin = async () => {
     if (!username || !password) {
       toast({
@@ -20,6 +21,8 @@ const Login = () => {
       });
       return;
     }
+    
+
 
     setIsLoading(true);
 
@@ -41,6 +44,7 @@ const Login = () => {
 
       // Redirect after login
       setTimeout(() => {
+        navigate("/dashboard");
         window.location.href = "/dashboard";
       }, 500);
     } catch (err: any) {

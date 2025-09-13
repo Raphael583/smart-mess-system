@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hostel Admin Login</title>
+  <title>Register Admin</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root{
-      --cyan:#22d3ee;        /* cosmic-cyan */
-      --orange:#ff8c00;      /* cosmic-orange */
+      --cyan:#22d3ee;
+      --orange:#ff8c00;
       --glass-bg: rgba(255,255,255,.12);
       --glass-bg-2: rgba(255,255,255,.08);
       --glass-border: rgba(255,255,255,.18);
@@ -23,21 +23,18 @@
       justify-content:center;
       position:relative;
       overflow:hidden;
-      background:#0b1020; /* fallback */
+      background:#0b1020;
       color:#fff;
     }
 
-    /* Background image */
     body::before{
       content:"";
       position:absolute; inset:0;
       background:url('/assets/cosmic-background.jpg') center/cover no-repeat;
-      /* Darken & pop like the React version */
       filter: brightness(.55) contrast(1.05) saturate(1.1);
       z-index:-2;
     }
 
-    /* Cosmic tint + subtle vignette (DARK overlay, not brightening) */
     body::after{
       content:"";
       position:absolute; inset:0;
@@ -47,43 +44,34 @@
       z-index:-1;
     }
 
-    /* Floating stars */
-    .star{
-      position:absolute; width:3px; height:3px; background:#fff; border-radius:50%;
-      opacity:.6; animation:twinkle 3s infinite alternate;
-    }
+    .star{ position:absolute; width:3px; height:3px; background:#fff; border-radius:50%;
+      opacity:.6; animation:twinkle 3s infinite alternate; }
     @keyframes twinkle{
       from{opacity:.25; transform:scale(.8)}
       to  {opacity:1;   transform:scale(1.15)}
     }
 
-    /* Glass card */
-    .login-container{
-      width: 380px; max-width: 92vw;
+    .register-container{
+      width: 400px; max-width: 92vw;
       padding: 40px;
       border-radius: 20px;
       background: linear-gradient(to bottom, var(--glass-bg), var(--glass-bg-2));
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
       border: 1px solid var(--glass-border);
-      box-shadow:
-        0 20px 40px rgba(0,0,0,.45),
-        inset 0 1px 0 rgba(255,255,255,.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
       text-align:center;
     }
 
-    .title{ font-size:2.25rem; font-weight:800; letter-spacing:.5px; }
+    .title{ font-size:2.25rem; font-weight:800; }
     .underline{ width:48px; height:3px; margin:10px auto 26px;
       background: linear-gradient(to right, var(--cyan), var(--orange)); border-radius:999px; }
 
     .field{
-      width:100%;
-      padding:12px 14px;
-      margin:12px 0;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.28);
-      background: rgba(255,255,255,.10);
-      color:#fff; font-size:16px; outline:none; transition:.25s;
+      width:100%; padding:12px 14px; margin:12px 0;
+      border-radius:10px; border:1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.10); color:#fff;
+      font-size:16px; outline:none; transition:.25s;
     }
     .field::placeholder{ color: rgba(255,255,255,.60); }
     .field:focus{
@@ -96,7 +84,8 @@
       width:100%; padding:12px; margin-top:16px;
       border:none; border-radius:10px; color:#fff; font-size:18px; font-weight:600;
       background: linear-gradient(to right, var(--cyan), rgba(34,211,238,.8));
-      cursor:pointer; transition: transform .15s ease, box-shadow .25s ease, filter .25s ease;
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .25s ease, filter .25s ease;
       box-shadow: 0 8px 20px rgba(34,211,238,.25);
     }
     .btn:hover{ transform: scale(1.02); box-shadow: 0 10px 24px rgba(34,211,238,.35); }
@@ -107,7 +96,6 @@
 
     .muted{ color:rgba(255,255,255,.80); font-size:.9rem; margin-top:14px; }
     .link{ color:var(--cyan); text-decoration:underline; text-underline-offset:3px; }
-    .link:hover{ filter:brightness(1.1); }
   </style>
 </head>
 <body>
@@ -124,53 +112,89 @@
     }
   </script>
 
-  <div class="login-container">
-    <div class="title">Login</div>
+  <div class="register-container">
+    <div class="title">Register Admin</div>
     <div class="underline"></div>
 
     <div id="message"></div>
     <input class="field" type="text" id="username" placeholder="Username" />
+    <input class="field" type="email" id="email" placeholder="Email" />
     <input class="field" type="password" id="password" placeholder="Password" />
-    <button class="btn" onclick="login()">Login</button>
+    <button class="btn" onclick="register()">Register</button>
 
-    <p class="muted"><a class="link" href="/register.html">Register</a></p>
+    <p class="muted">Already have an account? <a class="link" href="/login.html">Login</a></p>
   </div>
-<script>
-  async function login(){
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
-    const msg = document.getElementById('message');
 
-    msg.textContent = '';
-    msg.className = '';
-
-    if(!u || !p){
-      msg.textContent = 'Please enter both username and password';
-      msg.className = 'error';
-      return;
+  <script>
+    function validateEmail(email){
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
     }
 
-    try{
-      const res = await fetch('http://localhost:3000/auth/login', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ username: u, password: p })
-      });
-
-      if(!res.ok) throw new Error('Invalid credentials');
-
-      const data = await res.json();
-      msg.textContent = data.message || 'Login successful';
-      msg.className = 'success';
-
-      // redirect to dashboard
-      setTimeout(() => location.href='/dashboard.html', 500);
-    } catch(e){
-      msg.textContent = e.message;
-      msg.className = 'error';
+    function validatePassword(password){
+      // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+      const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      return re.test(password);
     }
-  }
-</script>
 
+    function validateUsername(username){
+      // only letters, numbers, underscores, min 3 chars
+      const re = /^[a-zA-Z0-9_]{3,}$/;
+      return re.test(username);
+    }
+
+    async function register(){
+      const u = document.getElementById('username').value.trim();
+      const e = document.getElementById('email').value.trim();
+      const p = document.getElementById('password').value.trim();
+      const msg = document.getElementById('message');
+
+      msg.textContent = '';
+      msg.className = '';
+
+      if(!u || !e || !p){
+        msg.textContent = 'Please fill all fields';
+        msg.className = 'error';
+        return;
+      }
+
+      if(!validateUsername(u)){
+        msg.textContent = 'Username must be at least 3 characters and only letters, numbers, underscores';
+        msg.className = 'error';
+        return;
+      }
+
+      if(!validateEmail(e)){
+        msg.textContent = 'Invalid email format';
+        msg.className = 'error';
+        return;
+      }
+
+      if(!validatePassword(p)){
+        msg.textContent = 'Password must be 8+ chars, include uppercase, lowercase, number & special char';
+        msg.className = 'error';
+        return;
+      }
+
+      try{
+        const res = await fetch('http://localhost:3000/admin', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ username: u, password: p, email: e })
+        });
+
+        if(!res.ok) throw new Error('Registration failed');
+
+        msg.textContent = `${u} created successfully`;
+        msg.className = 'success';
+
+        // redirect after success
+        setTimeout(() => location.href='/login.html', 1200);
+      } catch(err){
+        msg.textContent = err.message;
+        msg.className = 'error';
+      }
+    }
+  </script>
 </body>
 </html>

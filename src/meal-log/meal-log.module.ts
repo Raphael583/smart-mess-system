@@ -6,6 +6,8 @@ import { MealLogSchema } from './schemas/meal-log.schema';
 import { StudentSchema } from '../student/student.schema';
 import { WeeklyMenuSchema } from '../weekly-menu/schemas/weekly-menu.schema';
 import { RfidModule } from '../rfid/rfid.module'; 
+import { MealSessionController } from './meal-session.controller';
+import { MealSessionService } from './meal-session.service';
 
 @Module({
   imports: [
@@ -16,8 +18,8 @@ import { RfidModule } from '../rfid/rfid.module';
     ]),
     RfidModule,
   ],
-  controllers: [MealLogController],
-  providers: [MealLogService],
+  controllers: [MealLogController, MealSessionController],
+  providers: [MealLogService, MealSessionService ], 
   exports: [MongooseModule],
 })
 export class MealLogModule {}

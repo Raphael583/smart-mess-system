@@ -2,30 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* ==============================
+   Unified Theme System
+   Includes both Login (Cosmic) 
+   and Dashboard (Hostel) themes
+   ============================== */
 
 @layer base {
   :root {
-    /* Cosmic theme colors */
+    /* -------- Cosmic Theme (Login) -------- */
     --cosmic-primary: 250 100% 15%;
     --cosmic-secondary: 280 60% 25%;
     --cosmic-accent: 15 80% 60%;
     --cosmic-cyan: 185 100% 50%;
     --cosmic-purple: 270 50% 40%;
     --cosmic-orange: 25 95% 65%;
-    
-    /* Gradients */
-    --gradient-cosmic: linear-gradient(135deg, hsl(var(--cosmic-primary)), hsl(var(--cosmic-secondary)), hsl(var(--cosmic-accent)));
-    --gradient-card: linear-gradient(135deg, hsla(280, 60%, 25%, 0.3), hsla(250, 100%, 15%, 0.2));
-    --gradient-button: linear-gradient(135deg, hsl(var(--cosmic-cyan)), hsl(185, 80%, 45%));
-    
-    /* Glass morphism */
+
+    --gradient-cosmic: linear-gradient(
+      135deg,
+      hsl(var(--cosmic-primary)),
+      hsl(var(--cosmic-secondary)),
+      hsl(var(--cosmic-accent))
+    );
+    --gradient-card: linear-gradient(
+      135deg,
+      hsla(280, 60%, 25%, 0.3),
+      hsla(250, 100%, 15%, 0.2)
+    );
+    --gradient-button: linear-gradient(
+      135deg,
+      hsl(var(--cosmic-cyan)),
+      hsl(185, 80%, 45%)
+    );
+
     --glass-bg: hsla(280, 60%, 25%, 0.15);
     --glass-border: hsla(280, 60%, 80%, 0.2);
     --glass-shadow: 0 8px 32px hsla(280, 60%, 15%, 0.3);
-    
+
+    /* -------- Hostel Theme (Dashboard) -------- */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 142 76% 45%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 240 10% 9%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 10% 9%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 142 76% 36%;
+
+    --students: 217 91% 60%;
+    --students-foreground: 0 0% 98%;
+
+    --rooms: 142 69% 58%;
+    --rooms-foreground: 0 0% 98%;
+
+    --courses: 199 89% 48%;
+    --courses-foreground: 0 0% 98%;
+
+    --complaints-registered: 199 89% 48%;
+    --complaints-new: 0 84% 60%;
+    --complaints-process: 25 95% 53%;
+    --complaints-closed: 142 69% 58%;
+    --complaints-foreground: 0 0% 98%;
+
+    --feedback: 199 89% 48%;
+    --feedback-foreground: 0 0% 98%;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary-glow))
+    );
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(142 76% 36%),
+      hsl(199 89% 48%)
+    );
+    --gradient-card-dashboard: linear-gradient(
+      145deg,
+      hsl(0 0% 100%),
+      hsl(240 5% 98%)
+    );
+
+    --shadow-card: 0 4px 6px -1px hsl(240 5% 65% / 0.1),
+      0 2px 4px -1px hsl(240 5% 65% / 0.06);
+    --shadow-elevated: 0 10px 25px -3px hsl(240 5% 65% / 0.1),
+      0 4px 6px -2px hsl(240 5% 65% / 0.05);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
+
+    /* -------- Shared Defaults -------- */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -35,41 +110,15 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -101,6 +150,7 @@ All colors MUST be HSL.
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
