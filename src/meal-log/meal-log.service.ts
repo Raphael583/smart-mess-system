@@ -19,7 +19,7 @@ export class MealLogService {
   private activeMeal: 'Breakfast' | 'Lunch' | 'Dinner' | null = null;
 
   // ✅ Start meal logging session
-  startMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+  /*startMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
     if (this.activeMeal) {
       throw new BadRequestException(
         `Meal logging already active for ${this.activeMeal}`,
@@ -37,7 +37,7 @@ export class MealLogService {
     const stopped = this.activeMeal;
     this.activeMeal = null;
     return { message: `${stopped} logging stopped` };
-  }
+  }*/
 
   // ✅ Check active meal
   getActiveMeal() {
@@ -45,86 +45,74 @@ export class MealLogService {
   }
 
   // ✅ Log a meal for a student using RFID
-  async logMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
-    // 🔹 Ensure session is active
-    if (!this.activeMeal) {
-      throw new BadRequestException("Mess time is over, can't log meal");
-    }
-
-    if (this.activeMeal !== mealType) {
-      throw new BadRequestException(
-        `Currently logging ${this.activeMeal}, not ${mealType}`,
-      );
-    }
-
-    const rfidUID = this.rfidService.getUID();
-    if (!rfidUID) {
-      throw new BadRequestException('No RFID UID found. Please scan the card.');
-    }
-
-    // 1. Find student by RFID
-    const student = await this.studentModel.findOne({ rfidUID }).exec();
-    if (!student) {
-      throw new BadRequestException('Student not found for this RFID UID.');
-    }
-
-    // 2. Find today's menu (by weekday + student’s messType)
-    const today = new Date().toLocaleString('en-US', { weekday: 'long' });
-
-    const menu = await this.weeklyMenuModel
-      .findOne({
-        mealType,
-        messType: student.messType,
-        day: today,
-      })
-      .exec();
-
-    if (!menu) {
-      throw new BadRequestException(
-        `No ${student.messType} menu found for ${mealType} today.`,
-      );
-    }
-
-    // 3. Prevent duplicate log (same student + mealType + same day)
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const existingLog = await this.mealLogModel
-      .findOne({
-        studentId: student._id,
-        mealType,
-        date: { $gte: startOfDay, $lte: endOfDay },
-      })
-      .exec();
-
-    if (existingLog) {
-      throw new BadRequestException(`Meal already logged for ${mealType} today.`);
-    }
-
-    // 4. Save meal log
-    const newLog = new this.mealLogModel({
-      studentId: student._id,
-      rfidUID,
-      date: new Date(),
-      mealType,
-      dishId: menu._id,
-      messType: student.messType,
-      scannedViaRFID: true,
-    });
-
-    await newLog.save();
-
-    // ✅ Return simplified response
-    return {
-      message: `${mealType} logged successfully`,
-      studentName: student.name,
-      messType: student.messType,
-      dishName: menu.dishName,
-      price: menu.price,
-    };
+async logMeal(mealType: 'Breakfast' | 'Lunch' | 'Dinner') {
+  const rfidUID = this.rfidService.getUID();
+  if (!rfidUID) {
+    throw new BadRequestException('No RFID UID found. Please scan the card.');
   }
+
+  // 1. Find student by RFID
+  const student = await this.studentModel.findOne({ rfidUID }).exec();
+  if (!student) {
+    throw new BadRequestException('Student not found for this RFID UID.');
+  }
+
+  // 2. Find today's menu (by weekday + student’s messType)
+  const today = new Date().toLocaleString('en-US', { weekday: 'long' });
+
+  const menu = await this.weeklyMenuModel
+    .findOne({
+      mealType,
+      messType: student.messType,
+      day: today,
+    })
+    .exec();
+
+  if (!menu) {
+    throw new BadRequestException(
+      `No ${student.messType} menu found for ${mealType} today.`,
+    );
+  }
+
+  // 3. Prevent duplicate log (same student + mealType + same day)
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const existingLog = await this.mealLogModel
+    .findOne({
+      studentId: student._id,
+      mealType,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    })
+    .exec();
+
+  if (existingLog) {
+    throw new BadRequestException(`Meal already logged for ${mealType} today.`);
+  }
+
+  // 4. Save meal log
+  const newLog = new this.mealLogModel({
+    studentId: student._id,
+    rfidUID,
+    date: new Date(),
+    mealType,
+    dishId: menu._id,
+    messType: student.messType,
+    scannedViaRFID: true,
+  });
+
+  await newLog.save();
+
+  return {
+    message: `${mealType} logged successfully`,
+    studentName: student.name,
+    messType: student.messType,
+    dishName: menu.dishName,
+    price: menu.price,
+  };
+}
 
   // ✅ Get all meal logs
   async findAll() {

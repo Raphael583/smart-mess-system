@@ -17,7 +17,7 @@ export class CreateStudentDto {
   @IsNotEmpty({ message: 'Department number is required' })
   deptNo: string;
 
-  @IsNumber({}, { message: 'Year must be a number' })
+  @IsString()
   year: number;
 
   @IsString()

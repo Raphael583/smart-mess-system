@@ -20,7 +20,7 @@ export class RfidService {
     this.timeoutHandle = setTimeout(() => {
       this.uid = null;
       this.timeoutHandle = null;
-    }, 10 * 1000); // 10 seconds
+    }, 2 * 60 * 1000); // 10 seconds
   }
 
   getUID(): string | null {

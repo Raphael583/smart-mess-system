@@ -7,14 +7,13 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3a8a, #0f172a); /* dark gradient */
+      background: linear-gradient(135deg, #1e3a8a, #0f172a);
       margin: 0;
       display: flex;
       min-height: 100vh;
       color: #f1f5f9;
     }
 
-    /* Sidebar */
     nav {
       background-color: rgba(30, 41, 59, 0.9); 
       width: 220px;
@@ -29,13 +28,7 @@
       border-right: 1px solid rgba(255,255,255,0.1);
     }
 
-    nav h2 {
-      color: #fff;
-      font-size: 20px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
+    nav h2 { color: #fff; font-size: 20px; text-align: center; margin-bottom: 20px; }
     nav a, #logoutBtn {
       color: #e2e8f0;
       padding: 12px 20px;
@@ -46,19 +39,9 @@
       margin: 5px 10px;
       cursor: pointer;
     }
+    nav a:hover, #logoutBtn:hover { background-color: rgba(255, 255, 255, 0.1); color: #fff; }
 
-    nav a:hover, #logoutBtn:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    /* Main content */
-    main {
-      margin-left: 220px;
-      padding: 30px;
-      flex: 1;
-    }
-
+    main { margin-left: 220px; padding: 30px; flex: 1; }
     header {
       background: linear-gradient(135deg, #16a34a, #22c55e);
       color: white;
@@ -67,16 +50,12 @@
       margin-bottom: 30px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 26px;
-    }
+    header h1 { margin: 0; font-size: 26px; }
 
     .container {
-      max-width: 500px;
+      max-width: 700px;
       margin: auto;
-      background: rgba(255, 255, 255, 0.1); /* glass effect */
+      background: rgba(255, 255, 255, 0.1);
       padding: 24px;
       border-radius: 16px;
       backdrop-filter: blur(12px);
@@ -84,11 +63,7 @@
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 20px;
-      font-size: 1.6rem;
-      color: #f8fafc;
-    }
+    h2 { margin-bottom: 20px; font-size: 1.6rem; color: #f8fafc; }
 
     select, button {
       width: 100%;
@@ -99,31 +74,13 @@
       border-radius: 10px;
     }
 
-    select {
-      background: rgba(255,255,255,0.15);
-      color: #f1f5f9;
-      cursor: pointer;
-    }
+    select { background: rgba(0,0,0,0.6); color: #f8fafc; cursor: pointer; }
+    select option { background: rgba(30,41,59,0.9); color: #f8fafc; }
 
-    button {
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .start-btn {
-      background: linear-gradient(to right, #22d3ee, #1ba7c7);
-      color: #fff;
-    }
-
-    .stop-btn {
-      background: linear-gradient(to right, #ff4b2b, #ff416c);
-      color: #fff;
-    }
-
-    button:hover {
-      transform: scale(1.03);
-    }
+    button { font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .start-btn { background: linear-gradient(to right, #22d3ee, #1ba7c7); color: #fff; }
+    .stop-btn { background: linear-gradient(to right, #ff4b2b, #ff416c); color: #fff; }
+    button:hover { transform: scale(1.03); }
 
     #status {
       margin-top: 18px;
@@ -137,14 +94,23 @@
       color: #f1f5f9;
     }
 
-    .success { color: #4ade80; }
-    .error { color: #f87171; }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      color: #f8fafc;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    th { background-color: rgba(255,255,255,0.15); }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
   <nav>
-    <h2>🏠 Hostel Admin</h2>
+    <h2> Hostel Admin</h2>
     <a href="dashboard.html">Dashboard</a>
     <a href="students.html">Students</a>
     <a href="meal-log.html">Meal Logs</a>
@@ -153,15 +119,13 @@
     <div id="logoutBtn">Logout</div>
   </nav>
 
-  <!-- Main Content -->
   <main>
     <header>
       <h1>Meal Logging</h1>
-      <p>Start or stop meal logging sessions here.</p>
+      <p>Start a meal logging session and scan student cards.</p>
     </header>
 
     <div class="container">
-      <!-- Meal selection -->
       <select id="mealType">
         <option value="">-- Select Meal --</option>
         <option value="Breakfast">Breakfast</option>
@@ -169,73 +133,76 @@
         <option value="Dinner">Dinner</option>
       </select>
 
-      <!-- Start/Stop buttons -->
       <button class="start-btn" onclick="startLogging()">Start Meal Logging</button>
       <button class="stop-btn" onclick="stopLogging()">Stop Meal Logging</button>
 
-      <!-- Status/messages -->
       <div id="status">Choose a meal and click start.</div>
+
+      <table id="mealTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Mess Type</th>
+            <th>Meal</th>
+            <th>Dish</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </main>
 
   <script>
-    let pollInterval = null;
-    const API = "http://localhost:3000/meallog";
+    const API_RFID = "http://localhost:3000/rfid/scan";
+    const API_MEAL = "http://localhost:3000/meallog";
+    let polling = null;
 
     async function startLogging() {
       const mealType = document.getElementById("mealType").value;
-      if (!mealType) {
-        showMessage("Please select a meal first.", "error");
-        return;
-      }
+      if (!mealType) return showMessage("Please select a meal first.", "error");
 
-      try {
-        const res = await fetch(`${API}/start`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mealType })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to start logging");
+      showMessage(`Meal logging started for ${mealType}...\nTap student RFID cards.`, "success");
+      document.getElementById("mealTable").style.display = "table";
 
-        showMessage(data.message, "success");
-        pollInterval = setInterval(() => fetchLog(mealType), 2000);
-      } catch (err) {
-        showMessage(err.message, "error");
-      }
+      polling = setInterval(async () => {
+        try {
+          const res = await fetch(API_RFID);
+          const data = await res.json();
+          if (!data.uid) return; // no card tapped yet
+
+          // send UID + meal to backend
+          const mealRes = await fetch(API_MEAL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid: data.uid, mealType })
+          });
+          const mealData = await mealRes.json();
+          if (!mealRes.ok) throw new Error(mealData.message || "Meal logging failed");
+
+          // update table
+          const tbody = document.querySelector("#mealTable tbody");
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${mealData.studentName}</td>
+            <td>${mealData.messType}</td>
+            <td>${mealType}</td>
+            <td>${mealData.dishName}</td>
+            <td>₹${mealData.price}</td>
+          `;
+          tbody.appendChild(row);
+
+          showMessage(`Logged: ${mealData.studentName} (${mealData.messType})`, "success");
+        } catch (err) {
+          showMessage(err.message, "error");
+        }
+      }, 2000);
     }
 
-    async function stopLogging() {
-      try {
-        const res = await fetch(`${API}/stop`, { method: "POST" });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to stop logging");
-
-        showMessage(data.message, "success");
-        clearInterval(pollInterval);
-        pollInterval = null;
-      } catch (err) {
-        showMessage(err.message, "error");
-      }
-    }
-
-    async function fetchLog(mealType) {
-      try {
-        const res = await fetch(`${API}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mealType })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Error logging meal");
-
-        showMessage(
-          `${data.message}\nStudent: ${data.studentName}\nMess: ${data.messType}\nDish: ${data.dishName}\nPrice: ₹${data.price}`,
-          "success"
-        );
-      } catch (err) {
-        showMessage(err.message, "error");
-      }
+    function stopLogging() {
+      clearInterval(polling);
+      polling = null;
+      showMessage("Meal logging stopped.", "success");
     }
 
     function showMessage(msg, type) {

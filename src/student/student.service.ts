@@ -21,7 +21,7 @@ export class StudentService {
  async create(dto: CreateStudentDto): Promise<Student> {
   const rawUID = this.rfidService.getUID();
 
-  console.log('🔍 UID from memory before student creation:', rawUID);
+  console.log(' UID from memory before student creation:', rawUID);
 
   if (!rawUID) {
     throw new BadRequestException('RFID UID expired or not received. Please tap your RFID again.');

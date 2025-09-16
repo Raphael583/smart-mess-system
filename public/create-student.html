@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Student</title>
   <style>
     :root {
@@ -84,11 +84,26 @@
       padding: 10px;
       border-radius: 8px;
       border: none;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
       font-size: 15px;
     }
+
+    input {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
     input::placeholder { color: #cbd5e1; }
+
+    /* Mess Type select */
+    select#messType {
+      background: rgba(0,0,0,0.6); /* dark background */
+      color: #f8fafc; /* white text */
+      appearance: none; /* remove default arrow */
+    }
+
+    select#messType option {
+      background: rgba(30, 41, 59, 0.9);
+      color: #f8fafc;
+    }
 
     button {
       background: linear-gradient(to right, #22d3ee, #0284c7);
@@ -106,6 +121,12 @@
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.2);
     }
+
+    .back-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -122,46 +143,102 @@
   <main>
     <div class="panel">
       <h2 class="title">Create Student</h2>
-      <form>
+      <form id="studentForm">
         <label>Name</label>
-        <input type="text" placeholder="Enter name">
+        <input type="text" id="name" placeholder="Enter name" required>
 
         <label>Department Number</label>
-        <input type="text" placeholder="Enter department no">
+        <input type="text" id="deptNo" placeholder="Enter department no" required>
 
         <label>Year</label>
-        <input type="text" placeholder="Enter year">
+        <input type="text" id="year" placeholder="Enter year">
 
         <label>Phone Number</label>
-        <input type="text" placeholder="Enter phone number">
+        <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
 
         <label>Email</label>
-        <input type="email" placeholder="Enter email">
+        <input type="email" id="email" placeholder="Enter email" required>
 
         <label>Mess Type</label>
-        <select>
+        <select id="messType">
           <option value="Veg">Veg</option>
           <option value="Non-Veg">Non-Veg</option>
         </select>
 
         <label>Room Number</label>
-        <input type="text" placeholder="Enter room number">
+        <input type="text" id="roomNumber" placeholder="Enter room number" required>
 
         <label>RFID UID</label>
-        <input type="text" placeholder="Click 'Scan RFID'...">
+        <input type="text" id="rfidUID" placeholder="Click 'Scan RFID'..." readonly>
 
-        <button type="button" class="secondary">Scan RFID</button>
+        <button type="button" class="secondary" id="scanBtn">Scan RFID</button>
         <button type="submit">Create Student</button>
-          <button type="button" class="back-btn" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+        <button type="button" class="back-btn" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
       </form>
     </div>
   </main>
 
   <script>
+    const API_BASE = "http://localhost:3000"; // adjust if needed
+
+    // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token'); 
       sessionStorage.removeItem('token');
       window.location.href = 'login.html';
+    });
+
+    // Scan RFID and show in textbox
+    document.getElementById("scanBtn").addEventListener("click", async () => {
+      try {
+        const res = await fetch(`${API_BASE}/rfid/scan`);
+        const data = await res.json();
+
+        if (data.uid) {
+          document.getElementById("rfidUID").value = data.uid;
+          alert(" RFID Scanned: " + data.uid);
+        } else {
+          alert(" No RFID UID detected. Please tap again.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error scanning RFID.");
+      }
+    });
+
+    // Submit student form
+    document.getElementById("studentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        name: document.getElementById("name").value,
+        deptNo: document.getElementById("deptNo").value,
+        year: document.getElementById("year").value,
+        phoneNumber: document.getElementById("phoneNumber").value,
+        email: document.getElementById("email").value,
+        messType: document.getElementById("messType").value,
+        roomNumber: document.getElementById("roomNumber").value,
+        // UID is not sent; backend uses RfidService memory
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/students`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          alert(" Student created successfully!");
+          window.location.href = "students.html"; 
+        } else {
+          const error = await res.json();
+          alert(" Error: " + (error.message || "Failed to create student"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error creating student.");
+      }
     });
   </script>
 </body>

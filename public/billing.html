@@ -141,12 +141,12 @@
 <body>
   <!-- Sidebar -->
   <nav>
-    <h2>🏠 Hostel Admin</h2>
+    <h2> Hostel Admin</h2>
     <a href="dashboard.html">Dashboard</a>
     <a href="students.html">Students</a>
     <a href="meal-log.html">Meal Logs</a>
     <a href="billing.html">Billing</a>
-    <a href="#">Weekly Menu</a>
+    <a href="weekly-menu.html">Weekly Menu</a>
     <div id="logoutBtn">Logout</div>
   </nav>
 
@@ -255,7 +255,7 @@
           <td>${bill.month}</td>
           <td>${bill.totalMeals}</td>
           <td>₹${bill.totalAmount}</td>
-          <td>${bill.isPaid ? "✅ Paid" : "❌ Not Paid"}</td>
+          <td>${bill.isPaid ? " Paid" : " Not Paid"}</td>
         `;
         tbody.appendChild(row);
       });
