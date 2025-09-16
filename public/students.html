@@ -7,15 +7,16 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9fafb;
+      background: linear-gradient(135deg, #1e3a8a, #0f172a); /* dark gradient like dashboard */
       margin: 0;
       display: flex;
       min-height: 100vh;
+      color: #f1f5f9;
     }
 
     /* Sidebar */
     nav {
-      background-color: #1e293b;
+      background-color: rgba(30, 41, 59, 0.9);
       width: 220px;
       height: 100vh;
       position: fixed;
@@ -24,6 +25,8 @@
       display: flex;
       flex-direction: column;
       padding-top: 20px;
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255,255,255,0.1);
     }
 
     nav h2 {
@@ -44,7 +47,7 @@
     }
 
     nav a:hover {
-      background-color: #334155;
+      background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
     }
 
@@ -61,6 +64,7 @@
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     }
 
     header h1 {
@@ -69,13 +73,15 @@
     }
 
     .card {
-      background: white;
+      background: rgba(255, 255, 255, 0.1); /* glass card */
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
       transition: transform 0.2s ease;
       margin-bottom: 20px;
       cursor: pointer;
+      color: #f8fafc;
     }
 
     .card:hover {
@@ -85,7 +91,7 @@
     .card h3 {
       margin: 0;
       font-size: 20px;
-      color: #374151;
+      color: #e2e8f0;
     }
 
     .card span {
@@ -93,7 +99,7 @@
       font-size: 28px;
       font-weight: bold;
       margin-top: 10px;
-      color: #3b82f6;
+      color: #38bdf8;
     }
 
     /* Table */
@@ -101,21 +107,23 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
-      background: white;
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05); /* glass effect */
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #f8fafc;
     }
 
     th, td {
       padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     th {
-      background-color: #f3f4f6;
-      color: #374151;
+      background-color: rgba(255,255,255,0.15);
+      color: #f1f5f9;
     }
 
     /* Glass Create Student Button */
@@ -129,14 +137,14 @@
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #111827;
+      color: #f1f5f9;
       transition: 0.3s;
       display: inline-block;
     }
 
     .glass-btn:hover {
       background: rgba(59, 130, 246, 0.2);
-      color: #1d4ed8;
+      color: #38bdf8;
     }
 
     /* Back button */
@@ -153,21 +161,22 @@
     #backBtn:hover {
       background: #2563eb;
     }
-    #logoutBtn {
-  color: #e2e8f0;
-  padding: 12px 20px;
-  text-decoration: none;
-  font-size: 16px;
-  transition: 0.3s;
-  border-radius: 6px;
-  margin: 5px 10px;
-  cursor: pointer;
-}
 
-#logoutBtn:hover {
-  background-color: #334155;
-  color: #fff;
-}
+    #logoutBtn {
+      color: #e2e8f0;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: 0.3s;
+      border-radius: 6px;
+      margin: 5px 10px;
+      cursor: pointer;
+    }
+
+    #logoutBtn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -177,8 +186,8 @@
     <a href="dashboard.html">Dashboard</a>
     <a href="students.html">Students</a>
     <a href="meal-log.html">Meal Logs</a>
-    <a href="#">Billing</a>
-    <a href="#">Weekly Menu</a>
+    <a href="billing.html">Billing</a>
+    <a href="weekly-menu.html">Weekly Menu</a>
     <div id="logoutBtn">Logout</div>
   </nav>
 
@@ -189,7 +198,7 @@
       <p>Manage all registered students here.</p>
     </header>
 
-    <!-- Card view (default) -->
+    <!-- Card view -->
     <div id="studentCardView">
       <div class="card" id="studentCountCard">
         <h3>Total Students</h3>
@@ -197,7 +206,7 @@
       </div>
     </div>
 
-    <!-- Table view (hidden initially) -->
+    <!-- Table view -->
     <div id="studentsTableContainer" style="display:none;">
       <h2>All Students</h2>
       <button id="backBtn">⬅ Back</button>
@@ -234,7 +243,7 @@
       }
     }
 
-    // Fetch all student details
+    // Fetch all students
     async function fetchStudents() {
       try {
         const res = await fetch("http://localhost:3000/students");
@@ -257,7 +266,6 @@
           tbody.appendChild(row);
         });
 
-        // Switch to table view
         document.getElementById("studentCardView").style.display = "none";
         document.getElementById("studentsTableContainer").style.display = "block";
       } catch (error) {
@@ -265,29 +273,23 @@
       }
     }
 
-    // Show student details on card click
+    // Events
     document.getElementById("studentCountCard").addEventListener("click", fetchStudents);
-
-    // Back button → Go back to card view
     document.getElementById("backBtn").addEventListener("click", () => {
       document.getElementById("studentsTableContainer").style.display = "none";
       document.getElementById("studentCardView").style.display = "block";
-      fetchTotalStudents(); // refresh count in case new students added
+      fetchTotalStudents();
     });
-
-    // Open Create Student page
     document.getElementById("createStudentBtn").addEventListener("click", () => {
       window.location.href = "create-student.html";
     });
-
-    // Logout
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
       window.location.href = "login.html";
     });
 
-    // Initial load
+    // Init
     fetchTotalStudents();
   </script>
 </body>

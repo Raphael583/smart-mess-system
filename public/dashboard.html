@@ -7,15 +7,16 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9fafb;
+      background: linear-gradient(135deg, #1e3a8a, #0f172a); /* darker gradient */
       margin: 0;
       display: flex;
       min-height: 100vh;
+      color: #f1f5f9;
     }
 
     /* Sidebar */
     nav {
-      background-color: #1e293b; /* dark slate */
+      background-color: rgba(30, 41, 59, 0.9); /* semi-transparent dark slate */
       width: 220px;
       height: 100vh;
       position: fixed;
@@ -24,6 +25,8 @@
       display: flex;
       flex-direction: column;
       padding-top: 20px;
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255,255,255,0.1);
     }
 
     nav h2 {
@@ -44,7 +47,7 @@
     }
 
     nav a:hover {
-      background-color: #334155;
+      background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
     }
 
@@ -61,6 +64,7 @@
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     }
 
     header h1 {
@@ -75,46 +79,48 @@
     }
 
     .card {
-      background: white;
+      background: rgba(255, 255, 255, 0.1); /* glass effect */
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
       transition: transform 0.2s ease;
+      color: #f8fafc;
     }
 
     .card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
 
     .card h3 {
       margin: 0;
       font-size: 18px;
-      color: #374151;
+      color: #e2e8f0;
     }
 
     .card span {
       display: block;
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       margin-top: 10px;
-      color: #16a34a;
+      color: #4ade80;
     }
 
-   #logoutBtn {
-  color: #e2e8f0;
-  padding: 12px 20px;
-  text-decoration: none;
-  font-size: 16px;
-  transition: 0.3s;
-  border-radius: 6px;
-  margin: 5px 10px;
-  cursor: pointer;
-}
+    #logoutBtn {
+      color: #e2e8f0;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: 0.3s;
+      border-radius: 6px;
+      margin: 5px 10px;
+      cursor: pointer;
+    }
 
-#logoutBtn:hover {
-  background-color: #334155;
-  color: #fff;
-}
+    #logoutBtn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -124,8 +130,8 @@
     <a href="dashboard.html">Dashboard</a>
     <a href="students.html">Students</a>
     <a href="meal-log.html">Meal Logs</a>
-    <a href="#">Billing</a>
-    <a href="#">Weekly Menu</a>
+    <a href="billing.html">Billing</a>
+    <a href="weekly-menu.html">Weekly Menu</a>
     <div id="logoutBtn">Logout</div>
   </nav>
 

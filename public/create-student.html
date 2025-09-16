@@ -5,180 +5,163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Student</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --blue-1: #1e293b;
+      --blue-2: #334155;
+      --accent: #22d3ee;
+    }
 
     body {
+      margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #4CAF50, #2E8B57);
+      background: linear-gradient(135deg, #1e293b, #334155, #475569);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    nav {
+      width: 220px;
+      background: var(--blue-1);
       height: 100vh;
+      padding-top: 22px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    nav h2 { color: #fff; text-align:center; margin:0 0 18px 0; font-size:18px; }
+    nav a, nav div#logoutBtn {
+      color: #e2e8f0;
+      padding: 12px 18px;
+      margin: 6px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    nav a:hover, nav div#logoutBtn:hover { background: rgba(255,255,255,0.04); }
+
+    /* Main */
+    main {
+      margin-left: 220px;
+      width: calc(100% - 220px);
+      padding: 34px;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
     }
 
-    .form-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      width: 400px;
+    .panel {
+      width: 100%;
+      max-width: 600px;
+      background: rgba(255,255,255,0.04);
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+    }
+
+    h2.title {
       text-align: center;
+      color: #38bdf8;
+      margin-bottom: 18px;
     }
 
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
     label {
-      display: block;
-      text-align: left;
-      margin-top: 12px;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #444;
+      font-weight: 600;
+      color: #e2e8f0;
     }
 
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+    input, select {
+      padding: 10px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
       font-size: 15px;
     }
-
-    input:focus, select:focus {
-      border-color: #4CAF50;
-      outline: none;
-    }
+    input::placeholder { color: #cbd5e1; }
 
     button {
-      background-color: #4CAF50;
+      background: linear-gradient(to right, #22d3ee, #0284c7);
       color: white;
       border: none;
+      padding: 12px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: 0.3s;
+      font-weight: 700;
+      transition: transform 0.2s;
     }
+    button:hover { transform: translateY(-2px); }
 
-    button:hover {
-      background-color: #45a049;
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
     }
-
-    #scanBtn {
-      background-color: #2E8B57;
-    }
-
-    #scanBtn:hover {
-      background-color: #246b44;
-    }
-
-    #message {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .success { color: green; }
-    .error { color: red; }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Create Student</h2>
-    <div id="message"></div>
-    <form id="studentForm">
-      <label>Name:</label>
-      <input type="text" id="name" required>
+  <nav>
+    <h2>🏠 Hostel Admin</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="meal-log.html">Meal Logs</a>
+    <a href="billing.html">Billing</a>
+    <a href="weekly-menu.html">Weekly Menu</a>
+    <div id="logoutBtn">Logout</div>
+  </nav>
 
-      <label>Department Number:</label>
-      <input type="text" id="deptNo" required>
+  <main>
+    <div class="panel">
+      <h2 class="title">Create Student</h2>
+      <form>
+        <label>Name</label>
+        <input type="text" placeholder="Enter name">
 
-      <label>Year:</label>
-      <input type="number" id="year" required>
+        <label>Department Number</label>
+        <input type="text" placeholder="Enter department no">
 
-      <label>Phone Number:</label>
-      <input type="text" id="phoneNumber" required>
+        <label>Year</label>
+        <input type="text" placeholder="Enter year">
 
-      <label>Email:</label>
-      <input type="email" id="email">
+        <label>Phone Number</label>
+        <input type="text" placeholder="Enter phone number">
 
-      <label>Mess Type:</label>
-      <select id="messType">
-        <option value="Veg">Veg</option>
-        <option value="Non-Veg">Non-Veg</option>
-      </select>
+        <label>Email</label>
+        <input type="email" placeholder="Enter email">
 
-      <label>Room Number:</label>
-      <input type="text" id="roomNumber" required>
+        <label>Mess Type</label>
+        <select>
+          <option value="Veg">Veg</option>
+          <option value="Non-Veg">Non-Veg</option>
+        </select>
 
-      <label>RFID UID:</label>
-      <input type="text" id="rfidUID" placeholder="Click 'Scan RFID'..." readonly>
-      <button type="button" id="scanBtn" onclick="scanRFID()">Scan RFID</button>
+        <label>Room Number</label>
+        <input type="text" placeholder="Enter room number">
 
-      <button type="submit">Create Student</button>
-    </form>
-  </div>
+        <label>RFID UID</label>
+        <input type="text" placeholder="Click 'Scan RFID'...">
+
+        <button type="button" class="secondary">Scan RFID</button>
+        <button type="submit">Create Student</button>
+          <button type="button" class="back-btn" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+      </form>
+    </div>
+  </main>
 
   <script>
-    async function scanRFID() {
-      try {
-        const res = await fetch("http://localhost:3000/rfid/get");
-        const data = await res.json();
-
-        if (data.uid) {
-          document.getElementById("rfidUID").value = data.uid;
-          document.getElementById("message").textContent = "RFID scanned: " + data.uid;
-          document.getElementById("message").className = "success";
-        } else {
-          document.getElementById("message").textContent = data.message || "No RFID available!";
-          document.getElementById("message").className = "error";
-        }
-      } catch (err) {
-        document.getElementById("message").textContent = "Error fetching RFID!";
-        document.getElementById("message").className = "error";
-      }
-    }
-
-    document.getElementById("studentForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      if (!document.getElementById("rfidUID").value) {
-        document.getElementById("message").textContent = "Please scan RFID before creating student!";
-        document.getElementById("message").className = "error";
-        return;
-      }
-
-      const student = {
-        name: document.getElementById("name").value,
-        deptNo: document.getElementById("deptNo").value,
-        year: parseInt(document.getElementById("year").value),
-        phoneNumber: document.getElementById("phoneNumber").value,
-        email: document.getElementById("email").value,
-        messType: document.getElementById("messType").value,
-        roomNumber: document.getElementById("roomNumber").value,
-        rfidUID: document.getElementById("rfidUID").value,
-      };
-
-      try {
-        const res = await fetch("http://localhost:3000/students", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(student),
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          document.getElementById("message").textContent = "✅ Student created successfully!";
-          document.getElementById("message").className = "success";
-          document.getElementById("studentForm").reset();
-        } else {
-          document.getElementById("message").textContent = "❌ " + (data.message || "Error creating student!");
-          document.getElementById("message").className = "error";
-        }
-      } catch (err) {
-        document.getElementById("message").textContent = "Server error while creating student!";
-        document.getElementById("message").className = "error";
-      }
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token'); 
+      sessionStorage.removeItem('token');
+      window.location.href = 'login.html';
     });
   </script>
 </body>

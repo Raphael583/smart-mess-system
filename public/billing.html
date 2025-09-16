@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e293b, #334155, #475569);
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      color: #f8fafc;
+    }
+
+    /* Sidebar */
+    nav {
+      background-color: #1e293b;
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    nav h2 {
+      color: #fff;
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    nav a, #logoutBtn {
+      color: #e2e8f0;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: 0.3s;
+      border-radius: 6px;
+      margin: 5px 10px;
+      cursor: pointer;
+    }
+
+    nav a:hover, #logoutBtn:hover {
+      background-color: #475569;
+      color: #fff;
+    }
+
+    /* Main content */
+    main {
+      margin-left: 220px;
+      padding: 30px;
+      flex: 1;
+    }
+
+    .container {
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      padding: 24px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      color: #38bdf8;
+      margin-bottom: 20px;
+    }
+
+    select, button {
+      padding: 12px;
+      font-size: 1rem;
+      margin: 10px 5px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    select {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      cursor: pointer;
+    }
+
+    button {
+      background: linear-gradient(to right, #22d3ee, #0284c7);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 0.95rem;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+
+    .success { color: #16a34a; }
+    .error { color: #f87171; }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: #f1f5f9;
+    }
+
+    th {
+      background: #0284c7;
+      color: white;
+    }
+
+    tr:hover td {
+      background-color: rgba(255,255,255,0.08);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav>
+    <h2>🏠 Hostel Admin</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="meal-log.html">Meal Logs</a>
+    <a href="billing.html">Billing</a>
+    <a href="#">Weekly Menu</a>
+    <div id="logoutBtn">Logout</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      <h2>Generate Monthly Bills</h2>
+
+      <!-- Month Selector -->
+      <select id="monthSelect">
+        <option value="">-- Select Month --</option>
+      </select>
+
+      <!-- Button -->
+      <button onclick="generateBill()">Generate Bill</button>
+
+      <!-- Status -->
+      <div id="status"></div>
+
+      <!-- Bills Table -->
+      <table id="billsTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Dept No</th>
+            <th>Month</th>
+            <th>Total Meals</th>
+            <th>Total Amount</th>
+            <th>Paid</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const API = "http://localhost:3000/billing";
+
+    // ✅ Auto-generate months dynamically up to current date
+    const monthSelect = document.getElementById("monthSelect");
+    const today = new Date();
+    const startYear = 2025; // Adjust based on your project start year
+
+    function populateMonths() {
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth(); // 0 = Jan
+
+      for (let year = startYear; year <= currentYear; year++) {
+        const monthLimit = (year === currentYear) ? currentMonth : 11;
+
+        for (let month = 0; month <= monthLimit; month++) {
+          const date = new Date(year, month, 1);
+          const monthName = date.toLocaleString("default", { month: "long" });
+          const option = document.createElement("option");
+          option.value = `${monthName} ${year}`;
+          option.textContent = `${monthName} ${year}`;
+          monthSelect.appendChild(option);
+        }
+      }
+    }
+
+    populateMonths();
+
+    // Generate bill
+    async function generateBill() {
+      const month = monthSelect.value;
+      if (!month) {
+        showMessage("Please select a month.", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ month })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to generate bill");
+
+        showMessage(`Bills generated for ${month}`, "success");
+        displayBills(data);
+      } catch (err) {
+        showMessage(err.message, "error");
+      }
+    }
+
+    // Display bills
+    function displayBills(bills) {
+      const table = document.getElementById("billsTable");
+      const tbody = table.querySelector("tbody");
+      tbody.innerHTML = "";
+
+      if (!bills.length) {
+        showMessage("No bills generated for this month.", "error");
+        table.style.display = "none";
+        return;
+      }
+
+      bills.forEach(bill => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${bill.studentName}</td>
+          <td>${bill.deptNo}</td>
+          <td>${bill.month}</td>
+          <td>${bill.totalMeals}</td>
+          <td>₹${bill.totalAmount}</td>
+          <td>${bill.isPaid ? "✅ Paid" : "❌ Not Paid"}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      table.style.display = "table";
+    }
+
+    function showMessage(msg, type) {
+      const status = document.getElementById("status");
+      status.textContent = msg;
+      status.className = type;
+    }
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

@@ -12,6 +12,7 @@ import { AdminModule } from './admin/admin.module';
 import { RfidModule } from './rfid/rfid.module';
 import { AuthModule } from './auth/auth.module';
 
+
 @Module({
   imports: [
     // Serve the public folder (login.html etc.) from outside src

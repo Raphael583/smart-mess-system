@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Weekly Menu</title>
+  <style>
+    /* dashboard-style background + sidebar (matches your dashboard) */
+    :root {
+      --blue-1: #1e293b;
+      --blue-2: #334155;
+      --accent: #22d3ee;
+      --panel: rgba(255,255,255,0.05);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e293b, #334155, #475569);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    nav {
+      width: 220px;
+      background: var(--blue-1);
+      height: 100vh;
+      padding-top: 22px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    nav h2 { color: #fff; text-align:center; margin:0 0 18px 0; font-size:18px; }
+    nav a, nav div#logoutBtn {
+      color: #e2e8f0;
+      padding: 12px 18px;
+      margin: 6px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    nav a:hover, nav div#logoutBtn:hover { background: rgba(255,255,255,0.04); }
+
+    /* main */
+    main {
+      margin-left: 220px;
+      width: calc(100% - 220px);
+      padding: 34px;
+    }
+    .panel {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.04);
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+    }
+    h2.title { text-align:center; color:#38bdf8; margin: 0 0 18px 0; }
+
+    .controls { text-align:center; margin-bottom: 18px; }
+    .controls button {
+      background: linear-gradient(to right,#22d3ee,#0284c7);
+      color:#fff; border:none; padding:10px 14px; margin: 0 8px; border-radius:8px; cursor:pointer;
+      font-weight:600;
+    }
+    .controls button.secondary { background: linear-gradient(to right,#06b6d4,#06b6d4); }
+    .controls button:hover { transform: translateY(-2px); }
+
+    /* Table */
+    table { width:100%; border-collapse: collapse; margin-top: 12px; }
+    thead th {
+      background: #0284c7;
+      padding: 12px;
+      color: white;
+      text-align: left;
+      border-radius: 6px;
+    }
+    tbody tr td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+    .meal-cell {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .meal-info { color: #e6eef8; flex:1; }
+    .btn-small {
+      background: linear-gradient(to right, #22d3ee, #0284c7);
+      border: none;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight:600;
+    }
+    .btn-small.ghost { background: rgba(255,255,255,0.06); color:#dbeafe; border:1px solid rgba(255,255,255,0.04); }
+
+    #formContainer { margin-top:18px; text-align:center; }
+    #formContainer input, #formContainer select {
+      padding:8px 10px; margin:6px; border-radius:8px; border: none; min-width:140px;
+    }
+    #formContainer .saveBtn {
+      background: linear-gradient(to right,#22d3ee,#0284c7);
+      color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700;
+    }
+
+    /* bulk table styles */
+    .bulkTable { width:100%; border-collapse: collapse; margin-top:10px; }
+    .bulkTable th, .bulkTable td { padding:8px; border:1px solid rgba(255,255,255,0.06); }
+
+    /* responsive */
+    @media (max-width: 940px) {
+      main { padding: 18px; }
+      .panel { padding: 16px; }
+      thead th { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <h2>🏠 Hostel Admin</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="meal-log.html">Meal Logs</a>
+    <a href="billing.html">Billing</a>
+    <a href="weekly-menu.html">Weekly Menu</a>
+    <div id="logoutBtn">Logout</div>
+  </nav>
+
+  <main>
+    <div class="panel">
+      <h2 class="title">Weekly Menu Management</h2>
+
+      <div class="controls">
+        <button onclick="showEntryForm()">➕ Add Entry</button>
+        <button onclick="showBulkForm()">📋 Bulk Entry</button>
+         <button onclick="window.location.href='dashboard.html'">🏠 Go to Dashboard</button>
+      </div>
+
+      <div id="formContainer"></div>
+
+      <table id="menuTable" aria-label="Weekly menu table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Breakfast (Veg)</th>
+            <th>Breakfast (Non-Veg)</th>
+            <th>Lunch (Veg)</th>
+            <th>Lunch (Non-Veg)</th>
+            <th>Dinner (Veg)</th>
+            <th>Dinner (Non-Veg)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+<script>
+  const API = 'http://localhost:3000/weeklymenu';
+
+  // helper: escape simple html
+  function esc(s){ return (s==null) ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // load grouped menu from backend (expects service to return grouped structure)
+  async function loadMenu(){
+    try{
+      const res = await fetch(API);
+      const data = await res.json();
+
+      const tbody = document.querySelector('#menuTable tbody');
+      tbody.innerHTML = '';
+
+      // data expected like:
+      // [{ day: "Monday", breakfastVeg: {id,dishName,price,messType}, breakfastNonVeg: {...}, ... }, ... ]
+      data.forEach(dayItem => {
+        const tr = document.createElement('tr');
+
+        // create helper to render a cell (shows dish + price and an Edit button if present, else Add)
+        function makeCell(entry, mealType){
+          const td = document.createElement('td');
+          const wrapper = document.createElement('div');
+          wrapper.className = 'meal-cell';
+
+          const info = document.createElement('div');
+          info.className = 'meal-info';
+
+          if(entry){
+            info.innerHTML = `${esc(entry.dishName)} (${esc(entry.messType)}, ₹${esc(entry.price)})`;
+            const btn = document.createElement('button');
+            btn.className = 'btn-small';
+            btn.textContent = 'Edit';
+            btn.addEventListener('click', () => editMenu(
+              entry.id,
+              dayItem.day,
+              mealType,
+              entry.dishName,
+              entry.messType,
+              entry.price
+            ));
+            wrapper.appendChild(info);
+            wrapper.appendChild(btn);
+          } else {
+            info.textContent = '-';
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-small ghost';
+            addBtn.textContent = 'Add';
+            addBtn.addEventListener('click', () => showEntryFormPrefilled(dayItem.day, mealType));
+            wrapper.appendChild(info);
+            wrapper.appendChild(addBtn);
+          }
+
+          td.appendChild(wrapper);
+          return td;
+        }
+
+        tr.appendChild(Object.assign(document.createElement('td'), { innerText: dayItem.day }));
+
+        tr.appendChild(makeCell(dayItem.breakfastVeg, 'Breakfast'));
+        tr.appendChild(makeCell(dayItem.breakfastNonVeg, 'Breakfast'));
+        tr.appendChild(makeCell(dayItem.lunchVeg, 'Lunch'));
+        tr.appendChild(makeCell(dayItem.lunchNonVeg, 'Lunch'));
+        tr.appendChild(makeCell(dayItem.dinnerVeg, 'Dinner'));
+        tr.appendChild(makeCell(dayItem.dinnerNonVeg, 'Dinner'));
+
+        tbody.appendChild(tr);
+      });
+
+    }catch(err){
+      console.error(err);
+      alert('Failed to load menu. Check console.');
+    }
+  }
+
+  // show blank add entry form
+  function showEntryForm(){
+    showEntryFormPrefilled('', 'Breakfast'); // default blank
+  }
+
+  // show form prefilled (used for add or when clicking Add on specific day+meal)
+  function showEntryFormPrefilled(day='', mealType='Breakfast', messType='Veg', dishName='', price=''){
+    const fc = document.getElementById('formContainer');
+    fc.innerHTML = '';
+
+    const heading = document.createElement('h3');
+    heading.innerText = 'Add / Update Menu Entry';
+    fc.appendChild(heading);
+
+    const dayInput = document.createElement('input');
+    dayInput.placeholder = 'Day (e.g. Monday)';
+    dayInput.value = day || '';
+    fc.appendChild(dayInput);
+
+    const mealSelect = document.createElement('select');
+    ['Breakfast','Lunch','Dinner'].forEach(m => {
+      const o = document.createElement('option'); o.value = m; o.text = m;
+      if (m === mealType) o.selected = true;
+      mealSelect.appendChild(o);
+    });
+    fc.appendChild(mealSelect);
+
+    const dishInput = document.createElement('input');
+    dishInput.placeholder = 'Dish Name';
+    dishInput.value = dishName || '';
+    fc.appendChild(dishInput);
+
+    const messSelect = document.createElement('select');
+    ['Veg','Non-Veg'].forEach(mt => {
+      const o = document.createElement('option'); o.value = mt; o.text = mt;
+      if (mt === messType) o.selected = true;
+      messSelect.appendChild(o);
+    });
+    fc.appendChild(messSelect);
+
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.placeholder = 'Price';
+    priceInput.value = price || '';
+    fc.appendChild(priceInput);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'saveBtn';
+    saveBtn.innerText = 'Save';
+    saveBtn.addEventListener('click', async () => {
+      const dto = {
+        day: dayInput.value.trim(),
+        mealType: mealSelect.value,
+        dishName: dishInput.value.trim(),
+        messType: messSelect.value,
+        price: Number(priceInput.value)
+      };
+      if(!dto.day || !dto.dishName || !dto.price){
+        alert('Please fill day, dish name and price.');
+        return;
+      }
+      // POST create
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dto)
+        });
+        if(!res.ok){
+          const err = await res.json().catch(()=>({message:'Create failed'}));
+          throw new Error(err.message || 'Create failed');
+        }
+        fc.innerHTML = '';
+        await loadMenu();
+      } catch(e){
+        alert('Create error: ' + e.message);
+      }
+    });
+    fc.appendChild(saveBtn);
+  }
+
+  // Edit menu (prefill form with record data and update)
+  function editMenu(id, day, mealType, dishName, messType, price) {
+    const fc = document.getElementById('formContainer');
+    fc.innerHTML = '';
+
+    const heading = document.createElement('h3');
+    heading.innerText = 'Update Menu Entry';
+    fc.appendChild(heading);
+
+    const dayInput = document.createElement('input');
+    dayInput.placeholder = 'Day (e.g. Monday)';
+    dayInput.value = day || '';
+    fc.appendChild(dayInput);
+
+    const mealSelect = document.createElement('select');
+    ['Breakfast','Lunch','Dinner'].forEach(m => {
+      const o = document.createElement('option'); o.value = m; o.text = m;
+      if (m === mealType) o.selected = true;
+      mealSelect.appendChild(o);
+    });
+    fc.appendChild(mealSelect);
+
+    const dishInput = document.createElement('input');
+    dishInput.placeholder = 'Dish Name';
+    dishInput.value = dishName || '';
+    fc.appendChild(dishInput);
+
+    const messSelect = document.createElement('select');
+    ['Veg','Non-Veg'].forEach(mt => {
+      const o = document.createElement('option'); o.value = mt; o.text = mt;
+      if (mt === messType) o.selected = true;
+      messSelect.appendChild(o);
+    });
+    fc.appendChild(messSelect);
+
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.placeholder = 'Price';
+    priceInput.value = price || '';
+    fc.appendChild(priceInput);
+
+    const updateBtn = document.createElement('button');
+    updateBtn.className = 'saveBtn';
+    updateBtn.innerText = 'Update';
+    updateBtn.addEventListener('click', async () => {
+      const dto = {
+        day: dayInput.value.trim(),
+        mealType: mealSelect.value,
+        dishName: dishInput.value.trim(),
+        messType: messSelect.value,
+        price: Number(priceInput.value)
+      };
+      if(!dto.day || !dto.dishName || !dto.price){
+        alert('Please fill day, dish name and price.');
+        return;
+      }
+      try {
+        const res = await fetch(`${API}/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dto)
+        });
+        if(!res.ok){
+          const err = await res.json().catch(()=>({message:'Update failed'}));
+          throw new Error(err.message || 'Update failed');
+        }
+        fc.innerHTML = '';
+        await loadMenu();
+      } catch(e){
+        alert('Update error: ' + e.message);
+      }
+    });
+    fc.appendChild(updateBtn);
+
+    // delete button (optional)
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-small ghost';
+    delBtn.style.marginLeft = '8px';
+    delBtn.innerText = 'Delete';
+    delBtn.addEventListener('click', async () => {
+      if(!confirm('Delete this menu entry?')) return;
+      try{
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        if(!res.ok) throw new Error('Delete failed');
+        fc.innerHTML = '';
+        await loadMenu();
+      }catch(e){
+        alert('Delete error: ' + e.message);
+      }
+    });
+    fc.appendChild(delBtn);
+  }
+
+  // Bulk form
+  function showBulkForm(){
+    const fc = document.getElementById('formContainer');
+    fc.innerHTML = '<h3>Bulk Entry (fill all fields)</h3>';
+
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const mealTypes = ["Breakfast","Lunch","Dinner"];
+
+    let html = `<table class="bulkTable"><thead><tr><th>Day</th><th>Meal</th><th>Dish Name</th><th>Mess Type</th><th>Price</th></tr></thead><tbody>`;
+    days.forEach(d => {
+      mealTypes.forEach(m => {
+        html += `<tr>
+          <td>${d}</td>
+          <td>${m}</td>
+          <td><input class="bulkDishName" placeholder="Dish"></td>
+          <td>
+            <select class="bulkMessType">
+              <option value="Veg">Veg</option>
+              <option value="Non-Veg">Non-Veg</option>
+            </select>
+          </td>
+          <td><input type="number" class="bulkPrice" placeholder="Price"></td>
+        </tr>`;
+      });
+    });
+    html += `</tbody></table><div style="text-align:center; margin-top:8px;"><button id="saveBulkBtn" class="saveBtn">Save All</button></div>`;
+    fc.innerHTML += html;
+
+    document.getElementById('saveBulkBtn').addEventListener('click', async () => {
+      const dishInputs = Array.from(document.getElementsByClassName('bulkDishName'));
+      const messSelects = Array.from(document.getElementsByClassName('bulkMessType'));
+      const priceInputs = Array.from(document.getElementsByClassName('bulkPrice'));
+
+      const dtos = [];
+      let idx = 0;
+      for (let di = 0; di < days.length; di++){
+        for (let mi = 0; mi < mealTypes.length; mi++){
+          const dish = dishInputs[idx].value.trim();
+          const mess = messSelects[idx].value;
+          const price = priceInputs[idx].value;
+          if(!dish || !price){
+            alert(`Please fill all fields for ${days[di]} ${mealTypes[mi]}`);
+            return;
+          }
+          dtos.push({
+            day: days[di],
+            mealType: mealTypes[mi],
+            dishName: dish,
+            messType: mess,
+            price: Number(price)
+          });
+          idx++;
+        }
+      }
+
+      try{
+        const res = await fetch(`${API}/bulk`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dtos)
+        });
+        if(!res.ok){
+          const err = await res.json().catch(()=>({message:'Bulk create failed'}));
+          throw new Error(err.message || 'Bulk create failed');
+        }
+        fc.innerHTML = '';
+        await loadMenu();
+      }catch(e){
+        alert('Bulk error: ' + e.message);
+      }
+    });
+  }
+
+  // initial load
+  loadMenu();
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token'); sessionStorage.removeItem('token');
+    window.location.href = 'login.html';
+  });
+</script>
+</body>
+</html>
