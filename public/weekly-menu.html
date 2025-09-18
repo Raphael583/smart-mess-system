@@ -4,126 +4,172 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Weekly Menu</title>
-  <style>
-    /* dashboard-style background + sidebar (matches your dashboard) */
-    :root {
-      --blue-1: #1e293b;
-      --blue-2: #334155;
-      --accent: #22d3ee;
-      --panel: rgba(255,255,255,0.05);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e293b, #334155, #475569);
-      color: #f8fafc;
-      min-height: 100vh;
-      display: flex;
-    }
+<style>
+  /* dashboard-style background + sidebar (matches your dashboard) */
+  :root {
+    --blue-1: #1e293b;
+    --blue-2: #334155;
+    --accent: #22d3ee;
+    --panel: rgba(255,255,255,0.05);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e293b, #334155, #475569);
+    color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+  }
 
-    /* Sidebar */
-    nav {
-      width: 220px;
-      background: var(--blue-1);
-      height: 100vh;
-      padding-top: 22px;
-      position: fixed;
-      left: 0;
-      top: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    nav h2 { color: #fff; text-align:center; margin:0 0 18px 0; font-size:18px; }
-    nav a, nav div#logoutBtn {
-      color: #e2e8f0;
-      padding: 12px 18px;
-      margin: 6px 10px;
-      border-radius: 6px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    nav a:hover, nav div#logoutBtn:hover { background: rgba(255,255,255,0.04); }
+  /* Sidebar */
+  nav {
+    width: 220px;
+    background: var(--blue-1);
+    height: 100vh;
+    padding-top: 22px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  nav h2 { color: #fff; text-align:center; margin:0 0 18px 0; font-size:18px; }
+  nav a, nav div#logoutBtn {
+    color: #e2e8f0;
+    padding: 12px 18px;
+    margin: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  nav a:hover, nav div#logoutBtn:hover { background: rgba(255,255,255,0.04); }
 
-    /* main */
-    main {
-      margin-left: 220px;
-      width: calc(100% - 220px);
-      padding: 34px;
-    }
-    .panel {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.04);
-      padding: 28px;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-      backdrop-filter: blur(6px);
-    }
-    h2.title { text-align:center; color:#38bdf8; margin: 0 0 18px 0; }
+  /* main */
+  main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    padding: 34px;
+  }
+  .panel {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.04);
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+  }
+  h2.title { text-align:center; color:#38bdf8; margin: 0 0 18px 0; }
 
-    .controls { text-align:center; margin-bottom: 18px; }
-    .controls button {
-      background: linear-gradient(to right,#22d3ee,#0284c7);
-      color:#fff; border:none; padding:10px 14px; margin: 0 8px; border-radius:8px; cursor:pointer;
-      font-weight:600;
-    }
-    .controls button.secondary { background: linear-gradient(to right,#06b6d4,#06b6d4); }
-    .controls button:hover { transform: translateY(-2px); }
+  .controls { text-align:center; margin-bottom: 18px; }
+  .controls button {
+    background: linear-gradient(to right,#22d3ee,#0284c7);
+    color:#fff; border:none; padding:10px 14px; margin: 0 8px; border-radius:8px; cursor:pointer;
+    font-weight:600;
+  }
+  .controls button.secondary { background: linear-gradient(to right,#06b6d4,#06b6d4); }
+  .controls button:hover { transform: translateY(-2px); }
 
-    /* Table */
-    table { width:100%; border-collapse: collapse; margin-top: 12px; }
-    thead th {
-      background: #0284c7;
-      padding: 12px;
-      color:white;
-      text-align: left;
-      border-radius: 6px;
-    }
-    tbody tr td {
-      padding: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      vertical-align: middle;
-    }
-    .meal-cell {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-    }
+  /* Table */
+  table { width:100%; border-collapse: collapse; margin-top: 12px; }
+  thead th {
+    background: #0284c7;
+    padding: 12px;
+    color:white;
+    text-align: left;
+    border-radius: 6px;
+  }
+  tbody tr td {
+    padding: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: middle;
+  }
+  .meal-cell {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
 
-    .meal-info { color: #e6eef8; flex:1; }
-    .btn-small {
-      background: linear-gradient(to right, #22d3ee, #0284c7);
-      border: none;
-      color: white;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight:600;
-    }
-    .btn-small.ghost { background: rgba(255,255,255,0.06); color:#dbeafe; border:1px solid rgba(255,255,255,0.04); }
+  .meal-info { color: #e6eef8; flex:1; }
+  .btn-small {
+    background: linear-gradient(to right, #22d3ee, #0284c7);
+    border: none;
+    color: white;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight:600;
+  }
+  .btn-small.ghost { background: rgba(255,255,255,0.06); color:#dbeafe; border:1px solid rgba(255,255,255,0.04); }
 
-    #formContainer { margin-top:18px; text-align:center; }
-    #formContainer input, #formContainer select {
-      padding:8px 10px; margin:6px; border-radius:8px; border: none; min-width:140px;
-    }
-    #formContainer .saveBtn {
-      background: linear-gradient(to right,#22d3ee,#0284c7);
-      color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700;
-    }
+  #formContainer { margin-top:18px; text-align:center; }
+  #formContainer input, #formContainer select {
+    padding:8px 10px; margin:6px; border-radius:8px; border: none; min-width:140px;
+  }
+  #formContainer .saveBtn {
+    background: linear-gradient(to right,#22d3ee,#0284c7);
+    color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700;
+  }
 
-    /* bulk table styles */
-    .bulkTable { width:100%; border-collapse: collapse; margin-top:10px; }
-    .bulkTable th, .bulkTable td { padding:8px; border:1px solid rgba(255,255,255,0.06); }
+  /* bulk table styles */
+  .bulkTable { width:100%; border-collapse: collapse; margin-top:10px; }
+  .bulkTable th, .bulkTable td { padding:8px; border:1px solid rgba(255,255,255,0.06); }
 
-    /* responsive */
-    @media (max-width: 940px) {
-      main { padding: 18px; }
-      .panel { padding: 16px; }
-      thead th { font-size: 13px; }
-    }
-  </style>
+  /* Veg columns green background + text */
+  thead th:nth-child(2),
+  thead th:nth-child(4),
+  thead th:nth-child(6),
+  tbody td:nth-child(2),
+  tbody td:nth-child(4),
+  tbody td:nth-child(6) {
+    background-color: rgba(34, 197, 94, 0.2); /* light green */
+    color: #4ade80; /* green text */
+  }
+
+  /* responsive */
+  @media (max-width: 940px) {
+    main { padding: 18px; }
+    .panel { padding: 16px; }
+    thead th { font-size: 13px; }
+  }
+  /* Make each table cell content stack vertically */
+.cell-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  justify-content: center;
+  gap: 6px;              /* space between text and button */
+  text-align: center;    /* text aligned center */
+  padding: 8px;
+}
+
+/* Dish name formatting */
+.dish-name {
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word; /* wrap long names */
+  max-width: 180px;      /* prevent overflow */
+}
+
+/* Edit button styling */
+.edit-btn {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.edit-btn:hover {
+  background: #0284c7;
+}
+
+</style>
+
 </head>
 <body>
   <nav>
@@ -189,10 +235,10 @@
         function makeCell(entry, mealType){
           const td = document.createElement('td');
           const wrapper = document.createElement('div');
-          wrapper.className = 'meal-cell';
+          wrapper.className = 'cell-content';
 
           const info = document.createElement('div');
-          info.className = 'meal-info';
+          info.className = 'dish-name';
 
           if(entry){
             info.innerHTML = `${esc(entry.dishName)}, ₹${esc(entry.price)}`;
