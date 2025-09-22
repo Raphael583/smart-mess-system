@@ -94,7 +94,7 @@ export class BillingService {
           continue;
         }
 
-        // count this meal and add the menu price (safe convert to number)
+        // count this mel and add the menu price (safe convert to number)
         const price = Number(menu.price || 0);
         validMeals++;
         totalAmount += price;
