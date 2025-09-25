@@ -2,6 +2,7 @@ import { Controller, Post, Get, Param, Body, Patch } from '@nestjs/common';
 import { BillingService } from './billing.service';
 import { GenerateBillDto } from './dto/generate-bill.dto';
 
+
 @Controller('billing')
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}

@@ -1,4 +1,3 @@
-// billing.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -6,9 +5,18 @@ import { Billing } from './interfaces/billing.interface';
 import { MealLog } from '../meal-log/interfaces/meal-log.interface';
 import { WeeklyMenu } from '../weekly-menu/interfaces/weekly-menu.interface';
 import { Student } from '../student/student.interface';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class BillingService {
+  private transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER, // gmail ID
+      pass: process.env.GMAIL_PASS, // app password
+    },
+  });
+
   constructor(
     @InjectModel('Billing') private readonly billingModel: Model<Billing>,
     @InjectModel('MealLog') private readonly mealLogModel: Model<MealLog>,
@@ -16,10 +24,6 @@ export class BillingService {
     @InjectModel('Student') private readonly studentModel: Model<Student>,
   ) {}
 
-  /**
-   * Generate bills for a given month string (e.g. "September 2025")
-   * Calculates totals strictly from WeeklyMenu.price referenced by each MealLog.
-   */
   async generateBillsForMonth(month: string): Promise<any[]> {
     const start = new Date(`${month} 1`);
     const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
@@ -27,98 +31,59 @@ export class BillingService {
     const students = await this.studentModel.find().exec();
     const createdBills: any[] = [];
 
+    console.log(`📌 Starting bill generation for ${month}...`);
+
     for (const student of students) {
-      // fetch meal logs for the student in the month
-      const logs = await this.mealLogModel
-        .find({
-          studentId: student._id,
-          date: { $gte: start, $lte: end },
-        })
-        .exec();
+      console.log(`\n Processing student: ${student.name} (${student.email})`);
+
+      const logs = await this.mealLogModel.find({
+        studentId: student._id,
+        date: { $gte: start, $lte: end },
+      });
 
       if (!logs || logs.length === 0) {
-        // nothing to bill for this student this month
+        console.log(`    No meal logs found for ${student.name}`);
         continue;
       }
 
-      // collect all dishIds referenced by logs (can be ObjectId or string)
-      const dishIds = logs
-        .map(l => (l.dishId ? String(l.dishId) : null))
-        .filter(Boolean);
-
+      const dishIds = logs.map(l => String(l.dishId)).filter(Boolean);
       if (dishIds.length === 0) {
-        // no referenced menus - skip
+        console.log(`    No valid dish IDs for ${student.name}`);
         continue;
       }
 
-      // fetch all referenced menu documents in one query
       const menus = await this.menuModel
         .find({ _id: { $in: dishIds } })
-        .select('_id price messType') // only need these fields
-        .lean()
-        .exec();
+        .select('_id price messType')
+        .lean();
 
       const menuMap = new Map<string, any>();
-      for (const m of menus) {
-        menuMap.set(String(m._id), m);
-      }
+      for (const m of menus) menuMap.set(String(m._id), m);
 
-      // compute totals only using menus that match student's messType
       let validMeals = 0;
       let totalAmount = 0;
 
       for (const log of logs) {
         const menu = menuMap.get(String(log.dishId));
-        if (!menu) {
-          // The referenced menu was not found - skip and warn for audit
-          console.warn(
-            `BillingService: missing WeeklyMenu for log ${String(
-              log._id,
-            )} (dishId: ${String(log.dishId)}) - student ${String(
-              student._id,
-            )}, month ${month}`,
-          );
-          continue;
-        }
+        if (!menu) continue;
 
-        // ensure the menu's messType matches student's messType
-        // if it doesn't match, it's probably a logging mismatch — skip it to avoid wrong billing
-        if (menu.messType && student.messType && menu.messType !== student.messType) {
-          console.warn(
-            `BillingService: messType mismatch - skipping log ${String(
-              log._id,
-            )}. menu.messType=${menu.messType}, student.messType=${student.messType}, student=${String(
-              student._id,
-            )}, dishId=${String(menu._id)}`,
-          );
-          continue;
-        }
+        if (menu.messType && student.messType && menu.messType !== student.messType) continue;
 
-        // count this mel and add the menu price (safe convert to number)
-        const price = Number(menu.price || 0);
         validMeals++;
-        totalAmount += price;
+        totalAmount += Number(menu.price || 0);
       }
 
       if (validMeals === 0) {
-        // no valid meals to bill (possible if all logs had mismatched messType)
+        console.log(`   No valid meals for ${student.name}`);
         continue;
       }
 
-      // Skip duplicates (do not generate bill if one already exists for student+month)
-      const existingBill = await this.billingModel
-        .findOne({ studentId: student._id, month })
-        .exec();
+      const existingBill = await this.billingModel.findOne({ studentId: student._id, month });
       if (existingBill) {
-        console.info(
-          `BillingService: bill already exists for student ${String(
-            student._id,
-          )} month ${month}, skipping`,
-        );
+        console.log(`    Bill already exists for ${student.name}`);
         continue;
       }
 
-      // create and save the bill
       const bill = new this.billingModel({
         studentId: student._id,
         month,
@@ -127,14 +92,39 @@ export class BillingService {
       });
 
       await bill.save();
+      console.log(`   Bill generated: ${validMeals} meals | ₹${totalAmount}`);
+
+      // ✅ Send email only to this student
+      if (student.email) {
+        const mailOptions = {
+          from: `"Mess Billing" <${process.env.GMAIL_USER}>`,
+          to: student.email,
+          subject: `Your ${month} Mess Bill`,
+          text: `Hello ${student.name},\n\n` +
+                `Your mess bill for ${month} is ready.\n\n` +
+                `Total Meals: ${validMeals}\n` +
+                `Total Amount: ₹${totalAmount}\n\n` +
+                `Please pay at the hostel office.\n\nThank you.`,
+        };
+
+        try {
+          const info = await this.transporter.sendMail(mailOptions);
+          console.log(`    Mail sent to ${student.email} | MessageId: ${info.messageId}`);
+        } catch (error) {
+          console.error(`   Failed to send mail to ${student.email}:`, error.message);
+        }
+      } else {
+        console.log(`   No email address for ${student.name}`);
+      }
+
       createdBills.push(bill);
     }
 
-    // populate and return bills for the month
+    console.log(`\n Finished bill generation for ${month}.`);
+
     const populatedBills = await this.billingModel
       .find({ month })
-      .populate('studentId', 'name deptNo messType')
-      .exec();
+      .populate('studentId', 'name deptNo messType');
 
     return populatedBills.map(bill => {
       const student: any = bill.studentId;
