@@ -111,6 +111,24 @@
 
     .success { color: #16a34a; }
     .error { color: #f87171; }
+    .loading { color: #38bdf8; }
+
+    /* Spinner */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top: 3px solid #38bdf8;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
     table {
       width: 100%;
@@ -219,6 +237,9 @@
         return;
       }
 
+      // show loading spinner
+      showMessage(`<span class="spinner"></span> Generating bills for ${month}... Please wait`, "loading");
+
       try {
         const res = await fetch(`${API}/generate`, {
           method: "POST",
@@ -228,7 +249,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to generate bill");
 
-        showMessage(`Bills generated for ${month}`, "success");
+        showMessage(` Bills generated for ${month}`, "success");
         displayBills(data);
       } catch (err) {
         showMessage(err.message, "error");
@@ -265,7 +286,7 @@
 
     function showMessage(msg, type) {
       const status = document.getElementById("status");
-      status.textContent = msg;
+      status.innerHTML = msg;
       status.className = type;
     }
 
